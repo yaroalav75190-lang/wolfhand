@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0c0909">
+<meta name="robots" content="noindex">
+<title>Кабинет партнёра · Рука волка</title>
+<link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+<div class="wrap">
+
+  <header class="bar">
+    <div class="title">Рука волка<small>кабинет партнёра</small></div>
+    <div class="who"><b id="who-name">…</b><a href="#" id="logout" style="color:var(--dim)">выйти</a></div>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <button data-page="redeem" class="on">Погасить сертификат</button>
+    <button data-page="stats">Моя статистика</button>
+    <button data-page="leads">Мои клиенты</button>
+    <button onclick="location.href='/admin/print.html'">Мой QR для печати</button>
+  </nav>
+
+  <div id="msg"></div>
+
+  <!-- ══ ПОГАШЕНИЕ СЕРТИФИКАТА ════════════════════════════════════════════ -->
+  <section class="page on" id="pg-redeem">
+    <div class="card">
+      <h3>Код гостя</h3>
+      <p class="tiny" style="margin-bottom:14px">Гость показывает код или QR из клуба.
+        Один код гасится один раз — повторно система его не примет.</p>
+      <label class="field">
+        <input type="text" id="in-code" class="code-input" placeholder="ВЛ-ХХХХ-ХХХ"
+               autocomplete="off" autocapitalize="characters">
+      </label>
+      <button class="btn" id="btn-check">Проверить</button>
+      <button class="btn ghost" id="btn-scan">Сканировать QR</button>
+    </div>
+
+    <div class="card hide" id="scan-box">
+      <video id="cam" playsinline muted></video>
+      <button class="btn ghost" style="margin-top:12px" id="btn-scan-stop">Остановить камеру</button>
+    </div>
+
+    <div class="card hide" id="cert-view">
+      <div class="center">
+        <div style="font-size:38px" id="cv-icon">🎟️</div>
+        <h2 id="cv-name">—</h2>
+        <p class="tiny" id="cv-guest"></p>
+      </div>
+      <div id="cv-status" style="margin-top:16px"></div>
+      <button class="btn" id="btn-redeem" style="margin-top:14px">Погасить сертификат</button>
+    </div>
+  </section>
+
+  <!-- ══ СТАТИСТИКА ═══════════════════════════════════════════════════════ -->
+  <section class="page" id="pg-stats">
+    <div class="card" style="padding:14px">
+      <div class="row" style="align-items:flex-end">
+        <label class="field" style="margin-bottom:0"><span>С</span><input type="date" id="d-from"></label>
+        <label class="field" style="margin-bottom:0"><span>По</span><input type="date" id="d-to"></label>
+        <div style="flex:0 0 auto"><button class="btn sm" id="btn-reload">Показать</button></div>
+      </div>
+    </div>
+
+    <div class="kpis" id="kpi-row"></div>
+
+    <div class="card">
+      <h3>Что происходит с вашим трафиком</h3>
+      <div id="funnel"></div>
+      <p class="tiny" style="margin-top:12px">Сканы — сколько человек навели камеру на ваш QR.
+        Дальше видно, сколько из них зарегистрировались, дошли до клуба и сыграли.</p>
+    </div>
+
+    <div class="card">
+      <h3>Ваши сертификаты</h3>
+      <div id="cert-stats"></div>
+      <p class="tiny" style="margin-top:12px">Погашенные сертификаты — это покупки в вашем магазине,
+        которых без акции не было бы. Именно эту цифру имеет смысл сравнивать со стоимостью призов,
+        которые вы положили в фонд.</p>
+    </div>
+
+    <div class="card">
+      <h3>По дням</h3>
+      <div class="scroll-x">
+        <table>
+          <thead><tr><th>Дата</th><th class="num">Сканы</th><th class="num">Регистрации</th>
+            <th class="num">Визиты</th><th class="num">Серт. выдано</th><th class="num">Серт. погашено</th></tr></thead>
+          <tbody id="day-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ ЛИДЫ ═════════════════════════════════════════════════════════════ -->
+  <section class="page" id="pg-leads">
+    <div class="card">
+      <h3>Контакты участников</h3>
+      <p class="tiny" style="margin-bottom:14px">Здесь только те, кто пришёл через вашу точку или получил
+        ваш сертификат <b>и отдельно согласился</b> на передачу контакта партнёрам акции.
+        Отозвавшие согласие исчезают из списка автоматически.</p>
+      <button class="btn ghost sm" id="btn-csv">Выгрузить CSV</button>
+    </div>
+
+    <div class="card">
+      <div class="scroll-x">
+        <table>
+          <thead><tr><th>Имя</th><th>Телефон</th><th class="num">Маршрут</th>
+            <th class="num">Визиты</th><th>Рассылка</th><th>Дата</th></tr></thead>
+          <tbody id="lead-body"></tbody>
+        </table>
+      </div>
+      <p class="tiny" style="margin-top:12px" id="lead-total"></p>
+    </div>
+  </section>
+
+</div>
+
+<script src="/admin/vendor/jsQR.js"></script>
+<script>
+'use strict';
+const $ = (id) => document.getElementById(id);
+const fmt = (n) => Number(n || 0).toLocaleString('ru-RU');
+const iso = (d) => new Date(d).toISOString().slice(0, 10);
+let ME = null;
+let currentCode = null;
+
+function say(kind, text, ttl = 5000) {
+  $('msg').innerHTML = `<div class="msg ${kind}">${text}</div>`;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (ttl) setTimeout(() => { $('msg').innerHTML = ''; }, ttl);
+}
+
+async function api(method, path, body) {
+  const res = await fetch(path, {
+    method,
+    headers: body ? { 'Content-Type': 'application/json' } : {},
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (res.status === 401) { location.href = '/admin/'; return { ok: false, data: {} }; }
+  const data = await res.json().catch(() => ({}));
+  return { ok: res.ok, status: res.status, data };
+}
+
+// Кнопки-ссылки (без data-page) уводят на другую страницу и вкладкой не являются.
+document.querySelectorAll('#tabs button[data-page]').forEach((b) => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('#tabs button').forEach((x) => x.classList.remove('on'));
+    b.classList.add('on');
+    document.querySelectorAll('.page').forEach((p) => p.classList.remove('on'));
+    $('pg-' + b.dataset.page).classList.add('on');
+    $('msg').innerHTML = '';
+    stopScan();
+    if (b.dataset.page === 'stats') loadStats();
+    if (b.dataset.page === 'leads') loadLeads();
+  });
+});
+
+// ── Маска кода ───────────────────────────────────────────────────────────────
+$('in-code').addEventListener('input', () => {
+  const el = $('in-code');
+  let v = el.value.toUpperCase().replace(/[^А-ЯЁ0-9]/g, '');
+  if (v.startsWith('ВЛ')) v = v.slice(2);
+  let out = 'ВЛ';
+  if (v.length) out += '-' + v.slice(0, 4);
+  if (v.length > 4) out += '-' + v.slice(4, 7);
+  el.value = out;
+});
+$('in-code').addEventListener('focus', () => { if (!$('in-code').value) $('in-code').value = 'ВЛ-'; });
+
+// ── Проверка и погашение ─────────────────────────────────────────────────────
+async function checkCode(code) {
+  currentCode = (code || $('in-code').value.trim()).toUpperCase();
+  const r = await api('GET', `/api/redeem?code=${encodeURIComponent(currentCode)}`);
+  if (!r.ok) {
+    $('cert-view').classList.add('hide');
+    return say('err', r.data.message || 'Код не найден.');
+  }
+  $('msg').innerHTML = '';
+  const c = r.data.cert;
+  if (!c) {
+    $('cert-view').classList.add('hide');
+    return say('err', 'По этому коду сертификата в ваш магазин нет.');
+  }
+
+  $('cv-icon').textContent = c.icon || '🎟️';
+  $('cv-name').textContent = c.name;
+  $('cv-guest').textContent = `${r.data.guest?.name || 'Гость'} · ${r.data.guest?.phone || ''}`;
+
+  if (c.redeemed) {
+    $('cv-status').innerHTML = `<div class="msg err">Уже погашен
+      ${new Date(c.redeemedAt).toLocaleString('ru-RU')} (${c.redeemedBy})</div>`;
+    $('btn-redeem').classList.add('hide');
+  } else {
+    const until = r.data.expiresAt ? new Date(r.data.expiresAt).toLocaleDateString('ru-RU') : '';
+    $('cv-status').innerHTML = `<div class="msg ok">Сертификат действителен${until ? ` до ${until}` : ''}.
+      Примените скидку и нажмите «Погасить».</div>`;
+    $('btn-redeem').classList.remove('hide');
+  }
+  $('cert-view').classList.remove('hide');
+}
+
+$('btn-check').addEventListener('click', () => checkCode());
+$('btn-redeem').addEventListener('click', async () => {
+  const r = await api('POST', '/api/redeem', { code: currentCode, what: 'cert' });
+  if (!r.ok) return say('err', r.data.message || 'Не удалось погасить.');
+  say('ok', 'Сертификат погашен и учтён в вашей статистике.');
+  $('cert-view').classList.add('hide');
+  $('in-code').value = '';
+});
+
+// ── Статистика ───────────────────────────────────────────────────────────────
+async function loadStats() {
+  const r = await api('GET', `/api/admin/partners?from=${$('d-from').value}&to=${$('d-to').value}`);
+  if (!r.ok) return say('err', 'Не удалось загрузить статистику.');
+  const p = r.data.partners[0];
+  if (!p) return say('err', 'Нет данных по вашей точке.');
+  const t = p.totals;
+
+  $('kpi-row').innerHTML = [
+    ['Сканы QR', fmt(t.scans), 'gold'],
+    ['Регистрации', fmt(t.signups), ''],
+    ['Дошли в клуб', fmt(t.visits), ''],
+    ['Сертификатов выдано', fmt(t.certsIssued), ''],
+    ['Погашено у вас', fmt(t.certsRedeemed), 'green'],
+    ['Ваших призов выиграно', fmt(t.prizesWon), ''],
+  ].map(([l, v, cls]) => `<div class="kpi ${cls}"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
+
+  const steps = [
+    ['Сканы QR', t.scans, null],
+    ['Регистрации', t.signups, t.scanToSignupPct],
+    ['Дошли до клуба', t.visits, t.signupToVisitPct],
+    ['Сыграли раздачу', t.deals, null],
+  ];
+  const max = Math.max(1, ...steps.map((s) => s[1] || 0));
+  $('funnel').innerHTML = steps.map(([label, val, conv]) => `
+    <div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;font-size:13.5px">
+        <span class="muted">${label}</span>
+        <b>${fmt(val)}${conv !== null && conv !== undefined ? ` <span class="pill gold">${conv}%</span>` : ''}</b>
+      </div>
+      <div class="bar-line"><i style="width:${Math.round((val || 0) / max * 100)}%"></i></div>
+    </div>`).join('');
+
+  $('cert-stats').innerHTML = `
+    <div class="row">
+      <div class="kpi"><div class="v">${fmt(t.certsIssued)}</div><div class="l">выдано</div></div>
+      <div class="kpi green"><div class="v">${fmt(t.certsRedeemed)}</div><div class="l">погашено</div></div>
+      <div class="kpi gold"><div class="v">${t.certRedeemPct === null ? '—' : t.certRedeemPct + '%'}</div>
+        <div class="l">доходимость</div></div>
+    </div>`;
+
+  $('day-body').innerHTML = p.byDay
+    .filter((d) => d.scans || d.signups || d.visits || d.certsIssued || d.certsRedeemed)
+    .reverse()
+    .map((d) => `<tr><td>${new Date(d.date).toLocaleDateString('ru-RU')}</td>
+      <td class="num">${fmt(d.scans)}</td><td class="num">${fmt(d.signups)}</td>
+      <td class="num">${fmt(d.visits)}</td><td class="num">${fmt(d.certsIssued)}</td>
+      <td class="num">${fmt(d.certsRedeemed)}</td></tr>`).join('')
+    || '<tr><td colspan="6" class="muted">За выбранный период активности не было.</td></tr>';
+}
+$('btn-reload').addEventListener('click', loadStats);
+
+// ── Лиды ─────────────────────────────────────────────────────────────────────
+async function loadLeads() {
+  const r = await api('GET', '/api/admin/leads?limit=500');
+  if (!r.ok) return say('err', 'Не удалось загрузить список.');
+  $('lead-body').innerHTML = r.data.leads.map((l) => `
+    <tr><td>${l.name || '—'}</td><td>${l.phone}</td>
+      <td class="num">${l.routeCount}</td><td class="num">${l.visits}</td>
+      <td>${l.consentMarketing ? '<span class="pill green">да</span>' : '<span class="pill">нет</span>'}</td>
+      <td class="tiny">${l.createdAt}</td></tr>`).join('')
+    || '<tr><td colspan="6" class="muted">Пока никто не дал согласие на передачу контакта.</td></tr>';
+  $('lead-total').textContent = `Контактов: ${fmt(r.data.total)}`;
+}
+$('btn-csv').addEventListener('click', () => { location.href = '/api/admin/leads?format=csv&limit=2000'; });
+
+// ── Сканер ───────────────────────────────────────────────────────────────────
+let stream = null;
+let scanRAF = null;
+
+async function startScan() {
+  $('scan-box').classList.remove('hide');
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+  } catch {
+    $('scan-box').classList.add('hide');
+    return say('err', 'Камера недоступна. Введите код вручную.');
+  }
+  const video = $('cam');
+  video.srcObject = stream;
+  await video.play();
+
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  const tick = () => {
+    if (!stream) return;
+    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const found = window.jsQR ? jsQR(img.data, img.width, img.height) : null;
+      if (found?.data) {
+        const code = found.data.trim().toUpperCase();
+        stopScan();
+        $('in-code').value = code;
+        checkCode(code);
+        return;
+      }
+    }
+    scanRAF = requestAnimationFrame(tick);
+  };
+  tick();
+}
+
+function stopScan() {
+  if (scanRAF) cancelAnimationFrame(scanRAF);
+  scanRAF = null;
+  if (stream) stream.getTracks().forEach((t) => t.stop());
+  stream = null;
+  $('scan-box').classList.add('hide');
+}
+$('btn-scan').addEventListener('click', startScan);
+$('btn-scan-stop').addEventListener('click', stopScan);
+window.addEventListener('pagehide', stopScan);
+
+// ── Старт ────────────────────────────────────────────────────────────────────
+(async () => {
+  const me = await api('GET', '/api/admin/me');
+  if (!me.ok) return;
+  ME = me.data;
+  if (ME.role !== 'partner') { location.href = '/admin/marketer.html'; return; }
+  $('who-name').textContent = ME.name;
+
+  const now = new Date();
+  $('d-to').value = iso(now);
+  $('d-from').value = iso(now.getTime() - 29 * 86400000);
+
+  if (!window.isSecureContext) {
+    $('btn-scan').disabled = true;
+    $('btn-scan').textContent = 'Скан QR — только по HTTPS';
+  }
+})();
+
+$('logout').addEventListener('click', async (e) => {
+  e.preventDefault();
+  await fetch('/api/admin/logout', { method: 'POST' });
+  location.href = '/admin/';
+});
+</script>
+</body>
+</html>

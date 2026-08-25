@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0c0909">
+<meta name="robots" content="noindex">
+<title>Вход · Рука волка</title>
+<link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+<div class="wrap narrow">
+
+  <header class="bar">
+    <div class="title">Рука волка<small>служебный вход</small></div>
+  </header>
+
+  <div id="msg"></div>
+
+  <nav class="tabs" id="role-tabs">
+    <button data-role="staff" class="on">Стойка клуба</button>
+    <button data-role="marketing">Маркетолог</button>
+    <button data-role="manager">Управляющий</button>
+    <button data-role="partner">Партнёр</button>
+  </nav>
+
+  <!-- Стойка: без пароля. На смене он всё равно становится общим и оседает на бумажке,
+       поэтому роль ограничена правами, а не секретом. -->
+  <div class="card page on" id="p-staff">
+    <h2>Стойка клуба</h2>
+    <p class="tiny" style="margin-bottom:16px">Хостес, кассир, дилер. Подтверждение приглашений,
+      выдача QR по чеку, выдача призов.</p>
+    <label class="field"><span>Имя и фамилия</span>
+      <input type="text" id="staff-name" placeholder="Анна Смирнова" autocomplete="name"></label>
+    <button class="btn" data-login="staff">Войти</button>
+  </div>
+
+  <div class="card page" id="p-marketing">
+    <h2>Маркетолог</h2>
+    <p class="tiny" style="margin-bottom:16px">Витрина акции, партнёрская аналитика, база участников,
+      очередь выдач.</p>
+    <label class="field"><span>Пароль</span>
+      <input type="password" id="mkt-pass" autocomplete="current-password"></label>
+    <button class="btn" data-login="marketing">Войти</button>
+  </div>
+
+  <div class="card page" id="p-manager">
+    <h2>Управляющий</h2>
+    <p class="tiny" style="margin-bottom:16px">Сводка по акции и расход призового фонда.</p>
+    <label class="field"><span>Пароль</span>
+      <input type="password" id="mgr-pass" autocomplete="current-password"></label>
+    <button class="btn" data-login="manager">Войти</button>
+  </div>
+
+  <div class="card page" id="p-partner">
+    <h2>Кабинет партнёра</h2>
+    <p class="tiny" style="margin-bottom:16px">Своя статистика по акции и погашение сертификатов,
+      выданных в ваш магазин.</p>
+    <label class="field"><span>Партнёр</span>
+      <select id="partner-select"><option value="">Загружаем…</option></select></label>
+    <label class="field"><span>Пароль</span>
+      <input type="password" id="partner-pass" autocomplete="current-password"></label>
+    <button class="btn" data-login="partner">Войти</button>
+  </div>
+
+  <p class="tiny center" style="margin-top:20px">Сессия действует 12 часов.<br>
+    Не оставляйте кабинет открытым на общем устройстве.</p>
+</div>
+
+<script>
+'use strict';
+const $ = (id) => document.getElementById(id);
+
+function say(kind, text) {
+  $('msg').innerHTML = `<div class="msg ${kind}">${text}</div>`;
+}
+
+// ── Переключение ролей ───────────────────────────────────────────────────────
+document.querySelectorAll('#role-tabs button').forEach((b) => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('#role-tabs button').forEach((x) => x.classList.remove('on'));
+    b.classList.add('on');
+    document.querySelectorAll('.page').forEach((p) => p.classList.remove('on'));
+    $('p-' + b.dataset.role).classList.add('on');
+    $('msg').innerHTML = '';
+  });
+});
+
+// ── Куда отправлять после входа ──────────────────────────────────────────────
+const HOME = {
+  staff: '/admin/staff.html',
+  marketing: '/admin/marketer.html',
+  manager: '/admin/marketer.html',
+  partner: '/admin/partner.html',
+};
+
+async function login(role) {
+  const body = { role };
+  if (role === 'staff') {
+    body.name = $('staff-name').value.trim();
+    if (body.name.length < 3) return say('err', 'Укажите имя и фамилию.');
+  }
+  if (role === 'manager') body.password = $('mgr-pass').value;
+  if (role === 'marketing') body.password = $('mkt-pass').value;
+  if (role === 'partner') {
+    body.partnerId = $('partner-select').value;
+    body.password = $('partner-pass').value;
+    if (!body.partnerId) return say('err', 'Выберите партнёра.');
+  }
+
+  const res = await fetch('/api/admin/login', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) return say('err', data.message || 'Не удалось войти.');
+
+  location.href = HOME[role];
+}
+
+document.querySelectorAll('[data-login]').forEach((b) => {
+  b.addEventListener('click', () => login(b.dataset.login));
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter') return;
+  const page = document.querySelector('.page.on');
+  page?.querySelector('[data-login]')?.click();
+});
+
+// ── Подгружаем список партнёров ──────────────────────────────────────────────
+(async () => {
+  try {
+    const cfg = await (await fetch('/api/config')).json();
+    const sel = $('partner-select');
+    sel.innerHTML = '<option value="">— выберите —</option>';
+    cfg.partners.filter((p) => p.kind === 'partner').forEach((p) => {
+      const o = document.createElement('option');
+      o.value = p.id; o.textContent = p.name;
+      sel.appendChild(o);
+    });
+  } catch {
+    $('partner-select').innerHTML = '<option value="">не загрузилось</option>';
+  }
+
+  // Уже вошли — сразу на рабочее место
+  try {
+    const me = await fetch('/api/admin/me');
+    if (me.ok) {
+      const d = await me.json();
+      if (HOME[d.role]) {
+        say('ok', `Вы уже вошли как ${d.name}. Открываем рабочее место…`);
+        setTimeout(() => { location.href = HOME[d.role]; }, 900);
+      }
+    }
+  } catch { /* не вошли — обычный сценарий */ }
+})();
+</script>
+</body>
+</html>

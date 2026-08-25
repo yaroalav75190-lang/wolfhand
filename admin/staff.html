@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0c0909">
+<meta name="robots" content="noindex">
+<title>Стойка · Рука волка</title>
+<link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+<div class="wrap narrow">
+
+  <header class="bar">
+    <div class="title">Рука волка<small>стойка клуба</small></div>
+    <div class="who"><b id="who-name">…</b><a href="#" id="logout" style="color:var(--dim)">выйти</a></div>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <button data-page="invite" class="on">Гость с приглашением</button>
+    <button data-page="check">Чек на кухню</button>
+    <button data-page="prize">Выдать приз</button>
+  </nav>
+
+  <div id="msg"></div>
+
+  <!-- ══ 1. ПРИГЛАШЕНИЕ ОТ ПАРТНЁРА ═══════════════════════════════════════ -->
+  <section class="page on" id="pg-invite">
+    <div class="card">
+      <h3>Код приглашения</h3>
+      <label class="field">
+        <input type="text" id="in-invite" class="code-input" placeholder="ПР-ХХХХ-ХХХ"
+               autocomplete="off" autocapitalize="characters" inputmode="text">
+      </label>
+      <button class="btn" id="btn-activate">Подтвердить визит</button>
+      <button class="btn ghost" id="btn-scan-invite">Сканировать QR гостя</button>
+      <p class="tiny" style="margin-top:12px">Гость показывает код на своём телефоне.
+        После подтверждения раздача откроется у него на экране сама.</p>
+    </div>
+
+    <div class="card hide" id="scan-box">
+      <video id="cam" playsinline muted></video>
+      <button class="btn ghost" style="margin-top:12px" id="btn-scan-stop">Остановить камеру</button>
+      <p class="tiny center" style="margin-top:10px" id="scan-hint">Наведите камеру на QR-код</p>
+    </div>
+
+    <div class="card good hide" id="activate-result">
+      <h2 id="ar-guest">—</h2>
+      <div class="row" style="margin-bottom:14px">
+        <div><div class="tiny">Пришёл от</div><b id="ar-partner">—</b></div>
+        <div><div class="tiny">Визит</div><b id="ar-visits">—</b></div>
+        <div><div class="tiny">Маршрут</div><b id="ar-route">—</b></div>
+      </div>
+      <div class="msg warn" id="ar-grant">Выдайте бесплатный стартовый стек фишек</div>
+      <p class="tiny" id="ar-tier"></p>
+    </div>
+  </section>
+
+  <!-- ══ 2. ЧЕК НА КУХНЮ → QR ═════════════════════════════════════════════ -->
+  <section class="page" id="pg-check">
+    <div class="card">
+      <h3>Заказ на кухню</h3>
+      <label class="field"><span>Сумма чека после скидок, ₽</span>
+        <input type="number" id="in-check" inputmode="numeric" placeholder="2500" min="0" step="50"></label>
+      <label class="field"><span>Стол (необязательно)</span>
+        <input type="text" id="in-table" placeholder="7"></label>
+      <button class="btn" id="btn-issue">Выдать QR</button>
+      <p class="tiny" style="margin-top:12px">Одна раздача за каждые полные
+        <b id="min-check">2 500</b> ₽. Гость сканирует QR своим телефоном.</p>
+    </div>
+
+    <div id="qr-list"></div>
+  </section>
+
+  <!-- ══ 3. ВЫДАЧА ПРИЗА ══════════════════════════════════════════════════ -->
+  <section class="page" id="pg-prize">
+    <div class="card">
+      <h3>Код приза</h3>
+      <label class="field">
+        <input type="text" id="in-prize" class="code-input" placeholder="ВЛ-ХХХХ-ХХХ"
+               autocomplete="off" autocapitalize="characters">
+      </label>
+      <button class="btn ghost" id="btn-check-prize">Посмотреть, что выпало</button>
+      <button class="btn ghost" id="btn-scan-prize">Сканировать QR гостя</button>
+    </div>
+
+    <div class="card hide" id="prize-view">
+      <div class="hand-mini" id="pv-hand"></div>
+      <h2 class="center" id="pv-combo" style="color:var(--gold)">—</h2>
+      <p class="tiny center" id="pv-guest" style="margin-bottom:14px"></p>
+
+      <div id="pv-prize"></div>
+      <div id="pv-tax"></div>
+
+      <button class="btn" id="btn-give" style="margin-top:14px">Выдать приз</button>
+      <p class="tiny center" style="margin-top:10px" id="pv-cert-note"></p>
+    </div>
+  </section>
+
+</div>
+
+<script src="/admin/vendor/jsQR.js"></script>
+<script>
+'use strict';
+const $ = (id) => document.getElementById(id);
+let ME = null;
+let currentCode = null;
+
+function say(kind, text, ttl = 0) {
+  $('msg').innerHTML = `<div class="msg ${kind}">${text}</div>`;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (ttl) setTimeout(() => { $('msg').innerHTML = ''; }, ttl);
+}
+
+async function api(method, path, body) {
+  const res = await fetch(path, {
+    method,
+    headers: body ? { 'Content-Type': 'application/json' } : {},
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (res.status === 401) { location.href = '/admin/'; return { ok: false, data: {} }; }
+  const data = await res.json().catch(() => ({}));
+  return { ok: res.ok, status: res.status, data };
+}
+
+// ── Вкладки ──────────────────────────────────────────────────────────────────
+// Кнопки-ссылки (без data-page) уводят на другую страницу и вкладкой не являются.
+document.querySelectorAll('#tabs button[data-page]').forEach((b) => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('#tabs button').forEach((x) => x.classList.remove('on'));
+    b.classList.add('on');
+    document.querySelectorAll('.page').forEach((p) => p.classList.remove('on'));
+    $('pg-' + b.dataset.page).classList.add('on');
+    $('msg').innerHTML = '';
+    stopScan();
+  });
+});
+
+// ── Маска ввода кодов: код диктуют голосом, дефисы ставим сами ──────────────
+function maskCode(input, prefix) {
+  input.addEventListener('input', () => {
+    let v = input.value.toUpperCase().replace(/[^А-ЯЁ0-9]/g, '');
+    if (v.startsWith(prefix)) v = v.slice(prefix.length);
+    let out = prefix;
+    if (v.length) out += '-' + v.slice(0, 4);
+    if (v.length > 4) out += '-' + v.slice(4, 7);
+    input.value = out;
+  });
+  input.addEventListener('focus', () => { if (!input.value) input.value = prefix + '-'; });
+}
+maskCode($('in-invite'), 'ПР');
+maskCode($('in-prize'), 'ВЛ');
+
+// ── 1. Подтверждение приглашения ─────────────────────────────────────────────
+async function activate(code) {
+  const r = await api('POST', '/api/activate-invite', { code: code || $('in-invite').value.trim() });
+  if (!r.ok) {
+    $('activate-result').classList.add('hide');
+    return say('err', r.data.message || 'Код не принят.');
+  }
+  const d = r.data;
+  $('msg').innerHTML = '';
+  $('ar-guest').textContent = d.guest.name || 'Гость';
+  $('ar-partner').textContent = d.partner.name;
+  $('ar-visits').textContent = `${d.guest.visits}-й`;
+  $('ar-route').textContent = `${d.route.collectedCount} из ${d.route.total}`;
+  $('ar-grant').textContent = 'Выдайте: ' + d.grant;
+  $('ar-tier').textContent = d.wolfHand
+    ? 'Гость собрал всю цепочку — это «Рука волка», максимальные шансы.'
+    : d.tier === 'boosted' ? 'Маршрут пройден на 3+ точки — шансы повышены.' : '';
+  $('activate-result').classList.remove('hide');
+  $('in-invite').value = '';
+  stopScan();
+}
+$('btn-activate').addEventListener('click', () => activate());
+
+// ── 2. Чек → QR ──────────────────────────────────────────────────────────────
+$('btn-issue').addEventListener('click', async () => {
+  const check = Number($('in-check').value);
+  if (!check) return say('err', 'Введите сумму чека.');
+
+  const r = await api('POST', '/api/session', { check, tableNo: $('in-table').value.trim() });
+  if (!r.ok) return say('err', r.data.message || 'Не получилось выдать QR.');
+
+  $('msg').innerHTML = '';
+  const box = $('qr-list');
+  box.innerHTML = `<div class="msg ok">Чек ${check.toLocaleString('ru-RU')} ₽ →
+    ${r.data.qrCount} ${r.data.qrCount === 1 ? 'раздача' : 'раздачи'}. Покажите QR гостю.</div>`;
+  r.data.qrs.forEach((q) => {
+    const el = document.createElement('div');
+    el.className = 'card glow center';
+    el.innerHTML = `<h3>QR ${q.qrIndex} из ${q.qrTotal}</h3>
+      <img class="qr" src="${q.qrDataUrl}" alt="QR ${q.qrIndex}">
+      <p class="tiny">Действует сутки. Одна раздача на код.</p>`;
+    box.appendChild(el);
+  });
+  $('in-check').value = '';
+  $('in-table').value = '';
+});
+
+// ── 3. Выдача приза ──────────────────────────────────────────────────────────
+async function previewPrize(code) {
+  currentCode = (code || $('in-prize').value.trim()).toUpperCase();
+  const r = await api('GET', `/api/redeem?code=${encodeURIComponent(currentCode)}`);
+  if (!r.ok) {
+    $('prize-view').classList.add('hide');
+    return say('err', r.data.message || 'Код не найден.');
+  }
+  $('msg').innerHTML = '';
+  const d = r.data;
+
+  const SUIT = { s: '♠', h: '♥', d: '♦', c: '♣' };
+  $('pv-hand').innerHTML = (d.cards || []).map((c) =>
+    `<i class="${c.s === 'h' || c.s === 'd' ? 'red' : ''}">${c.r === 'T' ? '10' : c.r}<br>${SUIT[c.s]}</i>`).join('');
+  $('pv-combo').textContent = d.comboName || '—';
+  $('pv-guest').textContent = `${d.guest?.name || 'Гость'} · ${d.guest?.phone || ''}` +
+    (d.sourcePartner ? ` · от ${d.sourcePartner.name}` : ' · гость клуба');
+
+  const p = d.prize;
+  $('pv-prize').innerHTML = p
+    ? `<div class="card ${p.redeemed ? '' : 'good'}" style="margin-bottom:0">
+         <div style="font-size:29px">${p.icon || '🎁'}</div>
+         <b style="font-size:17px">${p.name}</b>
+         <div class="tiny">${p.desc || ''}</div>
+         ${p.redeemed ? `<div class="msg err" style="margin-top:12px">Уже выдан ${new Date(p.redeemedAt).toLocaleString('ru-RU')} (${p.redeemedBy})</div>` : ''}
+         ${p.requiresPassport ? '<div class="msg warn" style="margin-top:12px">Нужен паспорт — приз оформляется актом</div>' : ''}
+       </div>`
+    : '<div class="msg warn">По этой руке приза нет — только сертификат партнёра.</div>';
+
+  $('pv-tax').innerHTML = p?.tax
+    ? `<div class="card alert"><h3 style="color:var(--red-soft)">НДФЛ</h3>
+         <p class="tiny">${p.tax.note} Ориентировочно ${p.tax.amount.toLocaleString('ru-RU')} ₽.
+         Не выдавайте приз без оформления — обязанность налогового агента на организаторе.</p></div>`
+    : '';
+
+  const cert = d.cert;
+  $('pv-cert-note').textContent = cert
+    ? (cert.redeemed
+        ? `Сертификат «${cert.name}» уже погашен партнёром.`
+        : `Гостю также положен сертификат: ${cert.name}. Его гасит сам партнёр — от вас ничего не требуется.`)
+    : '';
+
+  $('btn-give').classList.toggle('hide', !p || p.redeemed);
+  $('prize-view').classList.remove('hide');
+}
+
+$('btn-check-prize').addEventListener('click', () => previewPrize());
+$('btn-give').addEventListener('click', async () => {
+  const r = await api('POST', '/api/redeem', { code: currentCode, what: 'prize' });
+  if (!r.ok) return say('err', r.data.message || 'Не удалось отметить выдачу.');
+  say('ok', `Приз «${r.data.prize?.name || ''}» выдан. Отмечено в журнале.`, 6000);
+  $('prize-view').classList.add('hide');
+  $('in-prize').value = '';
+});
+
+// ── Сканер QR ────────────────────────────────────────────────────────────────
+let stream = null;
+let scanRAF = null;
+let onScan = null;
+
+async function startScan(handler) {
+  onScan = handler;
+  $('scan-box').classList.remove('hide');
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+  } catch {
+    $('scan-box').classList.add('hide');
+    return say('err', 'Камера недоступна. Проверьте разрешение браузера или введите код вручную.');
+  }
+  const video = $('cam');
+  video.srcObject = stream;
+  await video.play();
+
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+  const tick = () => {
+    if (!stream) return;
+    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const found = window.jsQR ? jsQR(img.data, img.width, img.height) : null;
+      if (found?.data) {
+        const code = found.data.trim().toUpperCase();
+        $('scan-hint').textContent = 'Найдено: ' + code;
+        stopScan();
+        onScan(code);
+        return;
+      }
+    }
+    scanRAF = requestAnimationFrame(tick);
+  };
+  tick();
+}
+
+function stopScan() {
+  if (scanRAF) cancelAnimationFrame(scanRAF);
+  scanRAF = null;
+  if (stream) stream.getTracks().forEach((t) => t.stop());
+  stream = null;
+  $('scan-box').classList.add('hide');
+}
+
+$('btn-scan-invite').addEventListener('click', () => startScan((code) => {
+  $('in-invite').value = code;
+  activate(code);
+}));
+$('btn-scan-prize').addEventListener('click', () => startScan((code) => {
+  $('in-prize').value = code;
+  previewPrize(code);
+}));
+$('btn-scan-stop').addEventListener('click', stopScan);
+window.addEventListener('pagehide', stopScan);
+
+// ── Старт ────────────────────────────────────────────────────────────────────
+(async () => {
+  const me = await api('GET', '/api/admin/me');
+  if (!me.ok) return;
+  ME = me.data;
+  $('who-name').textContent = ME.name;
+
+  const cfg = await (await fetch('/api/config')).json().catch(() => null);
+  if (cfg) $('min-check').textContent = cfg.minCheck.toLocaleString('ru-RU');
+
+  // Сканер работает только в защищённом контексте — предупреждаем заранее,
+  // иначе сотрудник будет думать, что сломалась камера.
+  if (!window.isSecureContext) {
+    document.querySelectorAll('#btn-scan-invite,#btn-scan-prize').forEach((b) => {
+      b.disabled = true;
+      b.textContent = 'Скан QR — только по HTTPS';
+    });
+  }
+})();
+
+$('logout').addEventListener('click', async (e) => {
+  e.preventDefault();
+  await fetch('/api/admin/logout', { method: 'POST' });
+  location.href = '/admin/';
+});
+</script>
+</body>
+</html>

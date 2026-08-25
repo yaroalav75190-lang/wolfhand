@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Материалы для точек · Рука волка</title>
+<link rel="stylesheet" href="/admin/admin.css">
+<style>
+/* Экранная часть — тёмная, как весь служебный контур.
+   Печатная — светлая: тейбл-тент печатают на белой бумаге. */
+.sheet{background:#fff;color:#14110c;border-radius:14px;padding:34px 30px;margin-bottom:18px;
+  text-align:center;font-family:'Inter','Segoe UI',sans-serif;page-break-after:always}
+.sheet .kicker{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:#8a7434;font-weight:800}
+.sheet h2{font-size:31px;font-weight:900;margin:10px 0 6px;color:#14110c;letter-spacing:-.02em}
+.sheet .sub{font-size:16px;color:#4a463f;margin-bottom:20px;line-height:1.45}
+.sheet img{width:280px;height:280px;display:block;margin:0 auto 16px}
+.sheet .card-mark{display:inline-block;border:2px solid #8a7434;border-radius:9px;
+  padding:7px 15px;font-size:23px;font-weight:800;color:#8a7434;margin-bottom:16px}
+.sheet ol{text-align:left;max-width:390px;margin:0 auto 18px;font-size:14.5px;color:#3a362f;line-height:1.6}
+.sheet .link{font-size:12px;color:#8a7434;word-break:break-all;font-family:monospace}
+.sheet .legal{font-size:11px;color:#7a766e;margin-top:16px;line-height:1.45}
+@media print{
+  body{background:#fff;padding:0}
+  .wrap{max-width:none;padding:0}
+  .no-print{display:none !important}
+  .sheet{border-radius:0;margin:0;padding:40px 30px;box-shadow:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="no-print">
+    <header class="bar">
+      <div class="title">Рука волка<small>материалы для точек партнёров</small></div>
+      <div class="who"><a href="/admin/marketer.html" style="color:var(--gold)">← к витрине</a></div>
+    </header>
+
+    <div class="card">
+      <h3>Что это</h3>
+      <p class="tiny" style="margin-bottom:14px">Готовые тейбл-тенты с QR-кодом для касс партнёров.
+        У каждой точки свой код — по нему считается её трафик. Печатайте на плотной бумаге,
+        по одному листу на точку. Если QR перепечатать с чужой точки, вся атрибуция уедет к ней.</p>
+      <button class="btn" onclick="window.print()">Печать всех листов</button>
+    </div>
+
+    <div id="msg"></div>
+  </div>
+
+  <div id="sheets"></div>
+</div>
+
+<script>
+'use strict';
+const $ = (id) => document.getElementById(id);
+
+const SUIT = { s: '♠', h: '♥', d: '♦', c: '♣' };
+
+(async () => {
+  const me = await fetch('/api/admin/me');
+  if (!me.ok) { location.href = '/admin/'; return; }
+  const role = (await me.json()).role;
+
+  const cfg = await (await fetch('/api/config')).json();
+  const partners = cfg.partners.filter((p) => p.kind === 'partner');
+  const minCheck = cfg.minCheck.toLocaleString('ru-RU');
+
+  const box = $('sheets');
+  for (const p of partners) {
+    const r = await fetch(`/api/admin/qr?partnerId=${p.id}&size=700`);
+    if (!r.ok) continue;                     // партнёру отдадут только его лист
+    const d = await r.json();
+
+    const el = document.createElement('div');
+    el.className = 'sheet';
+    el.innerHTML = `
+      <div class="kicker">Optimist Poker × ${d.name}</div>
+      <h2>Собери руку —<br>забери приз</h2>
+      <div class="sub">Наведите камеру на код и заберите карту<br>${d.name} в покерный маршрут</div>
+      <div class="card-mark">${d.card.r === 'T' ? '10' : d.card.r}${SUIT[d.card.s]}</div>
+      <img src="${d.qrDataUrl}" alt="QR ${d.name}">
+      <ol>
+        <li>Сканируете код и оставляете имя с телефоном.</li>
+        <li>Приходите в Optimist Poker — стартовый стек фишек в подарок.</li>
+        <li>Получаете раздачу из пяти карт: комбинация решает, какой приз ваш.</li>
+        <li>Скидка в ${d.name} достаётся каждому участнику — без исключений.</li>
+      </ol>
+      <div class="link">${d.link}</div>
+      <div class="legal">
+        Маркетинговая акция, не лотерея и не азартная игра. Участникам 18+.
+        Игра на деньги запрещена. Количество призов ограничено.
+        Правила: ${location.origin}/docs/rules.html
+      </div>`;
+    box.appendChild(el);
+  }
+
+  if (!box.children.length) {
+    $('msg').innerHTML = '<div class="msg err">Не удалось получить коды точек.</div>';
+  }
+  if (role === 'partner') {
+    document.querySelector('.who').innerHTML =
+      '<a href="/admin/partner.html" style="color:var(--gold)">← в кабинет</a>';
+  }
+})();
+</script>
+</body>
+</html>

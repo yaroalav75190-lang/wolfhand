@@ -1,0 +1,12 @@
+node_modules/
+data/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+.env
+.env.local
+.env.production
+*.log
+
+# Локальные настройки инструментов разработчика
+.claude/settings.local.json

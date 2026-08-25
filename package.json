@@ -1,0 +1,23 @@
+{
+  "name": "wolfhand",
+  "version": "1.0.0",
+  "private": true,
+  "description": "«Рука волка» — партнёрская акция с моментальным розыгрышем для покерного клуба СРПЕ / Optimist Poker",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --env-file-if-exists=.env.local server.js",
+    "econ": "node tools/econ.mjs",
+    "test": "node --test tests/",
+    "dev:memory": "node -e \"process.env.KV_DRIVER='memory'; process.env.DEV_MODE='1'; import('./server.js')\""
+  },
+  "dependencies": {
+    "qrcode": "^1.5.4"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "optionalDependencies": {
+    "better-sqlite3": "^11.10.0"
+  }
+}

@@ -1,0 +1,45 @@
+/* Стиль юридических документов акции. Светлый и печатаемый: эти страницы
+   читают на телефоне, распечатывают для стойки и отправляют юристу на правку. */
+
+:root{ --ink:#14110c; --muted:#5c5851; --line:#ddd8cc; --gold:#8a7434; --paper:#fbfaf6; }
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);
+  font-family:'Georgia','Times New Roman',serif;font-size:16px;line-height:1.65}
+.doc{max-width:780px;margin:0 auto;padding:32px 22px 80px}
+
+header.doc-head{border-bottom:2px solid var(--gold);padding-bottom:18px;margin-bottom:28px}
+header.doc-head .brand{font-family:'Inter','Segoe UI',sans-serif;font-size:12px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:8px}
+h1{font-size:26px;line-height:1.25;margin-bottom:8px}
+header.doc-head .meta{font-family:'Inter','Segoe UI',sans-serif;font-size:13px;color:var(--muted)}
+
+h2{font-size:19px;margin:30px 0 12px;padding-top:4px}
+h3{font-size:16px;margin:20px 0 8px}
+p{margin-bottom:12px}
+ul,ol{margin:0 0 14px 24px}
+li{margin-bottom:7px}
+b,strong{font-weight:700}
+
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14.5px;
+  font-family:'Inter','Segoe UI',sans-serif}
+th,td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top}
+th{background:#f2efe6;font-weight:600}
+
+.note{background:#f4f1e6;border-left:4px solid var(--gold);padding:14px 16px;margin:18px 0;
+  font-size:15px}
+.todo{background:#fdf2ef;border-left:4px solid #c0504d;padding:14px 16px;margin:18px 0;
+  font-family:'Inter','Segoe UI',sans-serif;font-size:14px}
+.todo b{color:#a33b38}
+.fill{background:#fff6cc;padding:1px 6px;border-radius:3px;border-bottom:1px dashed #b59b3a}
+
+footer.doc-foot{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);
+  font-family:'Inter','Segoe UI',sans-serif;font-size:13px;color:var(--muted)}
+footer.doc-foot a{color:var(--gold)}
+a{color:var(--gold)}
+
+@media print{
+  body{background:#fff;font-size:12pt}
+  .doc{max-width:none;padding:0}
+  .todo{border-left-color:#999}
+  a{color:inherit;text-decoration:none}
+}

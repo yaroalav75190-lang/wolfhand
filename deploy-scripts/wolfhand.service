@@ -1,0 +1,32 @@
+# systemd unit для приложения «Рука волка».
+# Копия того, что install.sh кладёт в /etc/systemd/system/wolfhand.service.
+# Хранится в репо для версионирования.
+
+[Unit]
+Description=Wolf Hand — promo campaign server
+After=network.target
+
+[Service]
+Type=simple
+User=wolfhand
+Group=wolfhand
+WorkingDirectory=/opt/wolfhand
+Environment=NODE_ENV=production
+Environment=HOST=127.0.0.1
+Environment=PORT=3000
+Environment=KV_DRIVER=sqlite
+Environment=SQLITE_PATH=/var/lib/wolfhand/wolfhand.sqlite
+EnvironmentFile=-/opt/wolfhand/.env.production
+ExecStart=/usr/bin/node /opt/wolfhand/server.js
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/wolfhand
+
+[Install]
+WantedBy=multi-user.target
