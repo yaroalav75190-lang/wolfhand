@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#123128">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Рука волка — партнёрская акция Optimist Poker">
+<meta property="og:description" content="Пять карт вместо лототрона: механика, экономика и живое демо раздачи. Можно сдать себе руку прямо на странице.">
+<meta property="og:locale" content="ru_RU">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="description" content="Механика, экономика и живое демо партнёрской акции с покерной раздачей для клуба СРПЕ / Optimist Poker.">
+<title>Рука волка</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;0,6..96,900;1,6..96,400&family=IBM+Plex+Mono:wght@400;500;600&family=Karla:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap">
+</head>
+<body>
+<style>
+/* ════════════════════════════════════════════════════════════════════════
+   «Рука волка» — презентация акции для СРПЕ / Optimist Poker.
+
+   Мир страницы выбран один и намеренно: вечерний покерный стол.
+   Клуб работает с 18:00 до 02:00, весь его фирменный стиль тёмный,
+   поэтому светлой темы здесь нет — но каждый цвет покрашен явно,
+   и страница держится на любом фоне хоста.
+   Ground — сукно #123128 из палитры их сайта, а не «казиношный» чёрный.
+   ════════════════════════════════════════════════════════════════════ */
+
+:root{
+  /* Сукно — основа */
+  --felt:        #123128;
+  --felt-deep:   #0C1F19;
+  --felt-rail:   #1B4437;
+  --ink:         #0C0909;
+
+  /* Золото фирменного стиля СРПЕ */
+  --gold:        #CBBB6D;
+  --gold-deep:   #A8904C;
+  --champagne:   #F8F096;
+
+  /* Карта — костяная бумага */
+  --bone:        #F2EEE3;
+  --bone-shade:  #DCD6C4;
+  --card-red:    #A32F2C;
+
+  /* Текст: нейтрали с уклоном в зелень основы, а не серые из коробки */
+  --text:        #EDE9DE;
+  --muted:       #9DAA9F;
+  --dim:         #6E7E73;
+  --line:        rgba(203,187,109,.20);
+  --line-soft:   rgba(237,233,222,.10);
+
+  --alert:       #D98C7A;
+  --good:        #8FBE7E;
+
+  --display: 'Bodoni Moda', 'Times New Roman', serif;
+  --body:    'Karla', 'Segoe UI', system-ui, sans-serif;
+  --mono:    'IBM Plex Mono', 'Consolas', monospace;
+
+  --wrap: 1120px;
+  --gutter: clamp(20px, 5vw, 56px);
+}
+
+*{ box-sizing:border-box; margin:0; padding:0 }
+
+body{
+  background: var(--felt);
+  color: var(--text);
+  font-family: var(--body);
+  font-size: 17px;
+  line-height: 1.62;
+  font-weight: 400;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Материальность сукна: две глубокие виньетки плюс еле заметное зерно.
+   Зерно — фильтр в data-URI, чтобы не тащить растр. */
+body::before{
+  content:'';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(1200px 720px at 50% -8%, rgba(203,187,109,.11), transparent 62%),
+    radial-gradient(900px 620px at 92% 104%, rgba(27,68,55,.85), transparent 66%),
+    radial-gradient(760px 520px at 4% 46%, rgba(12,31,25,.75), transparent 70%);
+}
+body::after{
+  content:'';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+main{ position: relative; z-index: 1 }
+
+/* ── Типографика ────────────────────────────────────────────────────── */
+h1,h2,h3{ font-family: var(--display); font-weight: 700; text-wrap: balance; letter-spacing: -.01em }
+h1{ font-size: clamp(46px, 8.4vw, 96px); line-height: .96; font-weight: 900 }
+h2{ font-size: clamp(30px, 4.4vw, 46px); line-height: 1.08 }
+h3{ font-size: clamp(20px, 2.4vw, 25px); line-height: 1.2 }
+p{ max-width: 66ch }
+strong{ font-weight: 700; color: var(--champagne) }
+em{ font-style: italic }
+
+.eyebrow{
+  font-family: var(--mono); font-size: 11.5px; font-weight: 500;
+  letter-spacing: .24em; text-transform: uppercase; color: var(--gold);
+}
+.lede{ font-size: clamp(18px, 2vw, 21px); line-height: 1.55; color: #D6D1C4; font-weight: 300 }
+.small{ font-size: 14.5px; color: var(--muted); line-height: 1.55 }
+.tiny{ font-size: 13px; color: var(--dim); line-height: 1.5 }
+.num{ font-family: var(--mono); font-variant-numeric: tabular-nums }
+
+/* ── Каркас ─────────────────────────────────────────────────────────── */
+.wrap{ max-width: var(--wrap); margin: 0 auto; padding-inline: var(--gutter) }
+section{ padding-block: clamp(56px, 9vw, 112px) }
+.rule{ height:1px; background: linear-gradient(90deg, transparent, var(--line), transparent) }
+
+.head{ display:flex; flex-direction:column; gap:14px; margin-bottom: clamp(28px,4vw,48px) }
+.head p{ color: var(--muted) }
+
+/* ── Шапка ──────────────────────────────────────────────────────────── */
+.masthead{
+  display:flex; align-items:center; gap:14px;
+  padding-block: 26px 0;
+}
+.masthead svg{ width:38px; height:38px; flex:0 0 38px }
+.masthead .who{ font-family:var(--mono); font-size:11.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--gold) }
+.masthead .who span{ display:block; color:var(--dim); letter-spacing:.08em; margin-top:3px }
+.masthead .stamp{
+  margin-left:auto; font-family:var(--mono); font-size:11px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--dim); text-align:right;
+}
+
+/* ── Герой ──────────────────────────────────────────────────────────── */
+.hero{ padding-block: clamp(38px,6vw,70px) clamp(20px,3vw,34px) }
+.hero h1{ margin-block: 20px 22px }
+.hero h1 em{ color: var(--gold); font-style: italic; font-weight: 400 }
+.hero .lede{ max-width: 60ch }
+.hero-meta{
+  display:flex; flex-wrap:wrap; gap: 10px 26px; margin-top: 28px;
+  font-family: var(--mono); font-size: 12.5px; letter-spacing:.06em; color: var(--muted);
+}
+.hero-meta b{ color: var(--champagne); font-weight:500 }
+
+/* ── Стол ───────────────────────────────────────────────────────────── */
+.table-zone{
+  position: relative;
+  border-top: 1px solid var(--line);
+  background:
+    radial-gradient(680px 300px at 50% 0%, rgba(203,187,109,.10), transparent 70%),
+    linear-gradient(180deg, rgba(27,68,55,.55), rgba(12,31,25,.35));
+}
+/* Дуга бет-лайна настоящего покерного стола — тонкая, почти незаметная */
+.table-zone .arc{
+  position:absolute; inset: 0 0 auto; height: 190px; overflow: hidden; pointer-events:none;
+}
+.table-zone .arc svg{ width: 150%; margin-left:-25%; display:block }
+
+.table-inner{ position: relative; padding-block: clamp(34px,5vw,58px) clamp(40px,6vw,72px) }
+
+.dealer-line{
+  display:flex; align-items:center; justify-content:space-between; gap:18px;
+  flex-wrap: wrap; margin-bottom: 26px;
+}
+.tier-switch{ display:flex; gap:6px; flex-wrap:wrap }
+.tier-switch button{
+  font-family: var(--mono); font-size:11.5px; letter-spacing:.11em; text-transform:uppercase;
+  padding: 9px 15px; border-radius: 2px; cursor:pointer;
+  background: transparent; color: var(--muted);
+  border: 1px solid var(--line-soft);
+  transition: color .18s, border-color .18s, background .18s;
+}
+.tier-switch button:hover{ color: var(--text); border-color: var(--line) }
+.tier-switch button[aria-pressed="true"]{
+  color: var(--ink); background: var(--gold); border-color: var(--gold); font-weight:600;
+}
+.tier-switch button:focus-visible{ outline:2px solid var(--champagne); outline-offset:2px }
+
+.hand{
+  display:flex; gap: clamp(6px, 1.6vw, 14px); justify-content:center;
+  perspective: 1400px; margin-block: 8px 26px;
+}
+.slot{ flex: 0 1 118px; aspect-ratio: 5/7.1; position:relative; max-width: 118px; min-width: 52px }
+.pc{
+  position:absolute; inset:0; transform-style: preserve-3d;
+  transform: rotateY(180deg) translateY(-18px) rotate(-4deg);
+  transition: transform .56s cubic-bezier(.2,.72,.28,1);
+}
+.pc.up{ transform: rotateY(0) translateY(0) rotate(0deg) }
+.face,.back{
+  position:absolute; inset:0; border-radius: 7px; backface-visibility:hidden;
+  box-shadow: 0 14px 30px rgba(6,16,12,.55), 0 2px 5px rgba(6,16,12,.4);
+}
+.face{
+  background: linear-gradient(168deg, var(--bone), var(--bone-shade));
+  color: var(--ink); display:flex; flex-direction:column;
+  justify-content:space-between; padding: 8px 9px;
+  font-family: var(--display);
+}
+.face .r{ font-size: clamp(15px,2.4vw,23px); font-weight:700; line-height:.9 }
+.face .s{ font-size: clamp(13px,2vw,19px); line-height:1; align-self:flex-end }
+.face .pip{
+  position:absolute; inset:0; display:grid; place-items:center;
+  font-size: clamp(28px,5.4vw,50px); opacity:.92;
+}
+.pc.red .face{ color: var(--card-red) }
+.back{
+  background:
+    repeating-linear-gradient(45deg, #17392E 0 7px, #123128 7px 14px);
+  border: 1px solid rgba(203,187,109,.34);
+  transform: rotateY(180deg);
+  display:grid; place-items:center;
+}
+.back::after{
+  content:''; width:46%; height:46%; background: var(--gold); opacity:.7;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2 3 7v5c0 5 3.8 9.2 9 10 5.2-.8 9-5 9-10V7l-9-5Zm0 4.2 2 3.3 3.6.6-2.5 2.7.5 3.7L12 14.8 8.4 16.5l.5-3.7-2.5-2.7 3.6-.6 2-3.3Z'/%3E%3C/svg%3E") center/contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2 3 7v5c0 5 3.8 9.2 9 10 5.2-.8 9-5 9-10V7l-9-5Zm0 4.2 2 3.3 3.6.6-2.5 2.7.5 3.7L12 14.8 8.4 16.5l.5-3.7-2.5-2.7 3.6-.6 2-3.3Z'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+.slot.win .face{ box-shadow: 0 0 0 2px var(--gold), 0 16px 34px rgba(203,187,109,.28) }
+.slot.win{ animation: lift .5s ease }
+@keyframes lift{ 0%{transform:translateY(0)} 44%{transform:translateY(-11px)} 100%{transform:translateY(0)} }
+
+.verdict{ text-align:center; min-height: 132px; margin-bottom: 22px }
+.verdict .combo{
+  font-family: var(--display); font-size: clamp(28px,4.6vw,44px); font-weight:700;
+  color: var(--gold); line-height:1.1;
+}
+.verdict .payout{
+  display:inline-flex; align-items:center; gap:11px; margin-top: 14px;
+  padding: 11px 20px; border:1px solid var(--line); border-radius:2px;
+  background: rgba(203,187,109,.07);
+}
+.verdict .payout .ic{ font-size:23px; line-height:1 }
+.verdict .payout .nm{ font-size:15.5px; font-weight:500 }
+.verdict .cert{ margin-top:12px; font-size:14px; color:var(--muted) }
+.verdict .cert b{ color: var(--champagne); font-weight:500 }
+.verdict .idle{ color: var(--dim); font-size:15px; padding-top: 34px }
+
+.deal-row{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap }
+.btn{
+  font-family: var(--body); font-size:16px; font-weight:700; letter-spacing:.01em;
+  padding: 15px 34px; border-radius: 2px; cursor:pointer; border:1px solid transparent;
+  background: linear-gradient(180deg, var(--champagne), var(--gold) 46%, var(--gold-deep));
+  color: var(--ink); transition: transform .12s, filter .18s;
+}
+.btn:hover{ filter: brightness(1.06) }
+.btn:active{ transform: translateY(1px) }
+.btn:disabled{ opacity:.42; cursor:not-allowed; filter:grayscale(.5) }
+.btn.quiet{
+  background: transparent; border-color: var(--line); color: var(--gold); font-weight:500;
+}
+.btn.quiet:hover{ border-color: var(--gold); background: rgba(203,187,109,.07) }
+.btn:focus-visible{ outline:2px solid var(--champagne); outline-offset:3px }
+
+/* Табло серии */
+.tally{ margin-top: clamp(30px,4vw,46px) }
+.tally-grid{
+  display:grid; grid-template-columns: repeat(auto-fit, minmax(122px,1fr)); gap:1px;
+  background: var(--line-soft); border:1px solid var(--line-soft);
+}
+.tally-cell{ background: var(--felt-deep); padding:15px 16px }
+.tally-cell .v{ font-family:var(--mono); font-size:25px; font-weight:600; color:var(--champagne); line-height:1.1 }
+.tally-cell .l{ font-family:var(--mono); font-size:10.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--dim); margin-top:6px }
+
+.dist{ margin-top: 18px; display:flex; flex-direction:column; gap:7px }
+.dist-row{ display:grid; grid-template-columns: 1fr 54px 46px; gap:12px; align-items:center; font-size:13.5px }
+.dist-row .nm{ color: var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+.dist-row.hit .nm{ color: var(--text) }
+.dist-row .bar{ position:relative; grid-column:1/-1; height:3px; background: rgba(237,233,222,.07); margin-top:-4px }
+.dist-row .bar i{ position:absolute; inset:0 auto 0 0; background: var(--gold-deep) }
+.dist-row .c,.dist-row .p{ font-family:var(--mono); font-size:12.5px; text-align:right; color:var(--muted); font-variant-numeric: tabular-nums }
+.dist-row .p{ color: var(--dim) }
+
+/* ── Общие блоки ────────────────────────────────────────────────────── */
+.cols{ display:grid; gap: clamp(20px,3vw,34px) }
+.cols.two{ grid-template-columns: repeat(auto-fit, minmax(290px,1fr)) }
+.cols.three{ grid-template-columns: repeat(auto-fit, minmax(240px,1fr)) }
+
+.panel{
+  border: 1px solid var(--line-soft); padding: clamp(20px,2.6vw,30px);
+  background: linear-gradient(180deg, rgba(27,68,55,.34), rgba(12,31,25,.22));
+}
+.panel.lit{ border-color: var(--line) }
+.panel h3{ margin-bottom: 12px }
+.panel p + p{ margin-top: 10px }
+
+.flow{ display:flex; flex-direction:column; gap:0 }
+.flow-step{ display:grid; grid-template-columns: 42px 1fr; gap:18px; padding-block: 16px; position:relative }
+.flow-step + .flow-step{ border-top:1px solid var(--line-soft) }
+.flow-step .mark{
+  font-family: var(--display); font-size:26px; font-weight:700; color: var(--gold);
+  line-height:1; padding-top:2px; text-align:center;
+}
+.flow-step .mark.red{ color: var(--card-red) }
+.flow-step h4{ font-family:var(--body); font-size:16px; font-weight:700; margin-bottom:4px }
+.flow-step p{ font-size:14.5px; color: var(--muted) }
+
+/* Карты маршрута */
+.route{ display:flex; gap: clamp(8px,1.6vw,16px); flex-wrap:wrap; margin-top: 6px }
+.route-card{
+  flex:1 1 118px; max-width: 168px; border:1px solid var(--line); border-radius:5px;
+  padding: 16px 12px; text-align:center; background: rgba(12,31,25,.5);
+}
+.route-card .rk{ font-family:var(--display); font-size:30px; font-weight:700; color: var(--gold); line-height:1 }
+.route-card .rk.red{ color: var(--card-red) }
+.route-card .who{ font-size:12.5px; color:var(--muted); margin-top:8px; line-height:1.3 }
+
+/* Таблица */
+.tbl-scroll{ overflow-x:auto }
+table{ width:100%; border-collapse:collapse; font-size:15px; min-width: 480px }
+th{
+  font-family:var(--mono); font-size:10.5px; letter-spacing:.15em; text-transform:uppercase;
+  color: var(--gold); text-align:left; padding: 0 14px 12px; font-weight:500;
+  border-bottom:1px solid var(--line);
+}
+td{ padding: 12px 14px; border-bottom:1px solid var(--line-soft); vertical-align:middle }
+tr:last-child td{ border-bottom:0 }
+td.rank{ font-family:var(--display); font-weight:700; font-size:17px; white-space:nowrap }
+td.odds{ font-family:var(--mono); font-size:13.5px; text-align:right; color:var(--muted); font-variant-numeric:tabular-nums; white-space:nowrap }
+td.who{ color: var(--muted); font-size:14px }
+tr.premium td.rank{ color: var(--champagne) }
+tr.premium{ background: rgba(203,187,109,.05) }
+
+/* Цифры экономики */
+.figures{ display:grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap:1px; background: var(--line-soft); border:1px solid var(--line-soft) }
+.fig{ background: var(--felt-deep); padding: 24px 22px }
+.fig .v{ font-family:var(--mono); font-size: clamp(26px,3.4vw,34px); font-weight:600; color: var(--champagne); line-height:1.05 }
+.fig .l{ font-size:14px; color: var(--muted); margin-top:9px; line-height:1.4 }
+
+/* Список-«галочки» */
+.checks{ list-style:none; display:flex; flex-direction:column; gap:11px }
+.checks li{ display:grid; grid-template-columns: 20px 1fr; gap:12px; font-size:15px; color: var(--muted) }
+.checks li b{ color: var(--text); font-weight:500 }
+.checks .m{ color: var(--gold); font-family:var(--mono); font-size:14px; line-height:1.5 }
+.checks .m.warn{ color: var(--alert) }
+
+blockquote{
+  border-left:2px solid var(--gold); padding: 4px 0 4px 22px; margin: 4px 0;
+  font-family: var(--display); font-size: clamp(19px,2.4vw,25px); font-style:italic;
+  line-height:1.42; color: #DFDACB; max-width: 44ch;
+}
+
+footer{
+  border-top:1px solid var(--line); padding-block: 40px 56px; margin-top: clamp(30px,5vw,60px);
+  color: var(--dim); font-size:13.5px;
+}
+footer .fnote{ max-width: 58ch }
+.foot-grid{
+  display:grid; grid-template-columns: minmax(0,1.7fr) minmax(0,1fr);
+  gap: clamp(24px,4vw,56px); align-items:start;
+}
+@media (max-width: 720px){ .foot-grid{ grid-template-columns: 1fr } }
+.foot-contact .eyebrow{ font-size:10.5px; letter-spacing:.2em }
+.foot-contact .name{
+  font-family: var(--display); font-size:17px; font-weight:700; color: var(--text);
+  margin-top:12px; line-height:1.3;
+}
+.foot-contact .tel{
+  display:inline-block; margin-top:9px; font-family: var(--mono); font-size:15px;
+  color: var(--gold); text-decoration:none; letter-spacing:.02em;
+  border-bottom:1px solid rgba(203,187,109,.32); padding-bottom:2px;
+}
+.foot-contact .tel:hover{ color: var(--champagne); border-bottom-color: var(--champagne) }
+.foot-contact .tel:focus-visible{ outline:2px solid var(--champagne); outline-offset:3px }
+.foot-contact .role{ margin-top:12px; font-size:13px; color: var(--dim); line-height:1.5 }
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important }
+  .pc{ transition:none }
+}
+@media (max-width: 640px){
+  .hand{ gap:5px }
+  .dist-row{ grid-template-columns: 1fr 46px 42px }
+}
+</style>
+
+<main>
+
+<div class="wrap">
+  <header class="masthead">
+    <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+      <path d="M32 6 12 14v6l-4 8 6 2 2 10 8 8h16l8-8 2-10 6-2-4-8v-6L32 6Z"
+            stroke="#CBBB6D" stroke-width="2.2" stroke-linejoin="round"/>
+      <path d="M24 30h5M35 30h5" stroke="#CBBB6D" stroke-width="3" stroke-linecap="round"/>
+      <path d="M28 40h8l-4 5-4-5Z" fill="#CBBB6D"/>
+    </svg>
+    <div class="who">Optimist Poker<span>СРПЕ · Екатеринбург</span></div>
+    <div class="stamp">Механика акции<br>август 2026</div>
+  </header>
+</div>
+
+<!-- ══ ГЕРОЙ ══════════════════════════════════════════════════════════ -->
+<div class="wrap">
+  <section class="hero">
+    <div class="eyebrow">Партнёрская акция</div>
+    <h1>Рука волка</h1>
+    <p class="lede">Пять карт вместо лототрона. Комбинация решает, какой приз забирает гость —
+      а призовой фонд собирают клуб и партнёры вместе. Без приза не уходит никто.</p>
+    <div class="hero-meta">
+      <span>Партнёров в цепочке · <b>5</b></span>
+      <span>Стоимость раздачи клубу · <b>45 ₽</b></span>
+      <span>Раздач с призом · <b>43%</b></span>
+      <span>Флеш-рояль · <b>1 из 2500</b></span>
+    </div>
+  </section>
+</div>
+
+<!-- ══ ЖИВОЙ СТОЛ ═════════════════════════════════════════════════════ -->
+<div class="table-zone">
+  <div class="arc" aria-hidden="true">
+    <svg viewBox="0 0 1200 190" preserveAspectRatio="none">
+      <path d="M0 186 Q600 -34 1200 186" fill="none" stroke="rgba(203,187,109,.19)" stroke-width="1"/>
+      <path d="M0 200 Q600 -20 1200 200" fill="none" stroke="rgba(203,187,109,.09)" stroke-width="1"/>
+    </svg>
+  </div>
+
+  <div class="wrap">
+    <section class="table-inner" id="demo">
+      <div class="dealer-line">
+        <div>
+          <div class="eyebrow">Дилер сдаёт</div>
+          <p class="small" style="margin-top:8px">Настоящая механика, а не картинка. Переключите тир —
+            и увидите, как маршрут по партнёрам меняет шансы.</p>
+        </div>
+        <div class="tier-switch" role="group" aria-label="Тир вероятностей">
+          <button data-tier="base" aria-pressed="true">1–2 карты</button>
+          <button data-tier="boosted" aria-pressed="false">3–4 карты</button>
+          <button data-tier="wolf" aria-pressed="false">Рука волка</button>
+        </div>
+      </div>
+
+      <div class="hand" id="hand" aria-live="polite"></div>
+
+      <div class="verdict" id="verdict">
+        <div class="idle">Нажмите «Сдавай» — карты вскроются по одной.</div>
+      </div>
+
+      <div class="deal-row">
+        <button class="btn" id="deal">Сдавай</button>
+        <button class="btn quiet" id="burst">Прогнать 200 раздач</button>
+        <button class="btn quiet" id="reset">Сбросить счёт</button>
+      </div>
+
+      <div class="tally">
+        <div class="tally-grid">
+          <div class="tally-cell"><div class="v num" id="t-deals">0</div><div class="l">раздач</div></div>
+          <div class="tally-cell"><div class="v num" id="t-wins">0</div><div class="l">с призом</div></div>
+          <div class="tally-cell"><div class="v num" id="t-rate">—</div><div class="l">доля выигрышей</div></div>
+          <div class="tally-cell"><div class="v num" id="t-jack">0</div><div class="l">флеш-роялей</div></div>
+          <div class="tally-cell"><div class="v num" id="t-cogs">0 ₽</div><div class="l">затраты клуба</div></div>
+          <div class="tally-cell"><div class="v num" id="t-retail">0 ₽</div><div class="l">розница призов</div></div>
+        </div>
+        <div class="dist" id="dist"></div>
+        <p class="tiny" style="margin-top:16px">На боевом сервере исход разыгрывается через
+          <span class="num">crypto.randomInt</span> и фиксируется до того, как гость увидит карты.
+          Здесь то же распределение считается прямо в браузере — чтобы можно было прогнать
+          пару сотен раздач и убедиться, что джекпот действительно редкий.
+          Одно отличие: демо не знает про тираж фонда, поэтому «розница призов» здесь может
+          обогнать реальный бюджет. На проде приз с исчерпанным тиражом просто выпадает
+          из розыгрыша — больше, чем положили партнёры, не разыграется.</p>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ══ ПОЧЕМУ ПОКЕР ═══════════════════════════════════════════════════ -->
+<div class="wrap">
+  <section>
+    <div class="head">
+      <div class="eyebrow">Почему раздача, а не барабаны</div>
+      <h2>Правила объяснять не нужно</h2>
+    </div>
+    <div class="cols two">
+      <div>
+        <blockquote>Слот приходится объяснять. Комбинацию из пяти карт ваша аудитория читает быстрее,
+          чем таблицу призов.</blockquote>
+        <p class="small" style="margin-top:22px">Флеш-рояль уже ваш символ — им назван клубный кубок.
+          Джекпот получает имя, которое не нужно придумывать и продвигать отдельно.</p>
+      </div>
+      <div class="panel lit">
+        <h3>Бэд-бит 7-2</h3>
+        <p class="small">Худшая стартовая рука в покере у нас платит. Покеристы считывают шутку мгновенно —
+          это старая клубная традиция, а механически это тот же гарантированный приз, только с историей,
+          которую пересказывают за столом.</p>
+        <p class="small">Проигрышных раздач в акции нет вообще: сертификат партнёра получает каждый,
+          независимо от комбинации.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="wrap"><div class="rule"></div></div>
+
+<!-- ══ ДВА КОНТУРА ════════════════════════════════════════════════════ -->
+<div class="wrap">
+  <section>
+    <div class="head">
+      <div class="eyebrow">Как гость попадает за стол</div>
+      <h2>Два входа, одна база</h2>
+      <p class="small">Контуры связаны номером телефона. Гость, собиравший карты у партнёров,
+        а потом пришедший в клуб по чеку, играет с повышенными шансами — система узнаёт его сама.</p>
+    </div>
+
+    <div class="cols two">
+      <div class="panel">
+        <div class="eyebrow" style="color:var(--muted)">Контур 1</div>
+        <h3 style="margin-block:10px 18px">Гость приходит от партнёра</h3>
+        <div class="flow">
+          <div class="flow-step">
+            <div class="mark">♠</div>
+            <div><h4>Сканирует QR на кассе</h4>
+              <p>У каждой точки свой код — по нему считается весь её трафик.</p></div>
+          </div>
+          <div class="flow-step">
+            <div class="mark red">♥</div>
+            <div><h4>Оставляет имя и телефон</h4>
+              <p>Получает карту маршрута этого партнёра и пригласительный код.</p></div>
+          </div>
+          <div class="flow-step">
+            <div class="mark red">♦</div>
+            <div><h4>Приходит в клуб</h4>
+              <p>Сотрудник подтверждает визит, гость получает бесплатный стек фишек.</p></div>
+          </div>
+          <div class="flow-step">
+            <div class="mark">♣</div>
+            <div><h4>Играет раздачу</h4>
+              <p>Стол открывается у него на телефоне сам — пересканировать ничего не нужно.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="eyebrow" style="color:var(--muted)">Контур 2</div>
+        <h3 style="margin-block:10px 18px">Гость клуба</h3>
+        <div class="flow">
+          <div class="flow-step">
+            <div class="mark">♠</div>
+            <div><h4>Заказ на кухню от 2 500 ₽</h4>
+              <p>Считается после всех скидок. За каждые полные 2 500 ₽ — отдельный код.</p></div>
+          </div>
+          <div class="flow-step">
+            <div class="mark red">♥</div>
+            <div><h4>Сотрудник выдаёт QR</h4>
+              <p>Чек 5 200 ₽ — две раздачи, 7 600 ₽ — три.</p></div>
+          </div>
+          <div class="flow-step">
+            <div class="mark red">♦</div>
+            <div><h4>Регистрация на своём телефоне</h4>
+              <p>Если гость уже собирал карты у партнёров, маршрут подтянется автоматически.</p></div>
+          </div>
+          <div class="flow-step">
+            <div class="mark">♣</div>
+            <div><h4>Раздача и код приза</h4>
+              <p>Код действует 14 дней: приз выдаёт клуб, сертификат гасит партнёр.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ══ МАРШРУТ ════════════════════════════════════════════════════════ -->
+<div class="wrap">
+  <section>
+    <div class="head">
+      <div class="eyebrow">Механика, которой не было в брифе</div>
+      <h2>Покерный маршрут</h2>
+      <p class="small">Главная проблема цепочки из пяти брендов — партнёры конкурируют за один и тот же
+        трафик. Маршрут разворачивает это: каждая точка выдаёт свою карту, и гостю выгодно обойти всех.</p>
+    </div>
+
+    <div class="route">
+      <div class="route-card"><div class="rk red">K♥</div><div class="who">HELLO APPLE</div></div>
+      <div class="route-card"><div class="rk red">Q♦</div><div class="who">LEVVEL men</div></div>
+      <div class="route-card"><div class="rk">J♣</div><div class="who">Чапаевские<br>Три богатыря</div></div>
+      <div class="route-card"><div class="rk">10♠</div><div class="who">Контора<br>Кузьма</div></div>
+      <div class="route-card" style="border-color:var(--gold);background:rgba(203,187,109,.09)">
+        <div class="rk">A♠</div><div class="who" style="color:var(--champagne)">Optimist Poker<br>финальная точка</div>
+      </div>
+    </div>
+
+    <div class="cols three" style="margin-top:32px">
+      <div class="panel">
+        <h3>1–2 карты</h3>
+        <p class="small">Базовые шансы. Так играет большинство.</p>
+      </div>
+      <div class="panel">
+        <h3>3–4 карты</h3>
+        <p class="small">Старшие комбинации примерно вдвое вероятнее. Мусорных рук заметно меньше.</p>
+      </div>
+      <div class="panel lit">
+        <h3 style="color:var(--champagne)">Все четыре</h3>
+        <p class="small">«Рука волка» — максимальные шансы, один раз. Флеш-рояль становится
+          в пять раз вероятнее, чем на базе.</p>
+      </div>
+    </div>
+
+    <p class="small" style="margin-top:26px">Таблица призов при этом одна и та же для всех, и гость видит
+      её целиком до раздачи. Меняются только вероятности — обещание остаётся честным.</p>
+  </section>
+</div>
+
+<div class="wrap"><div class="rule"></div></div>
+
+<!-- ══ ТАБЛИЦА ВЫПЛАТ ═════════════════════════════════════════════════ -->
+<div class="wrap">
+  <section>
+    <div class="head">
+      <div class="eyebrow">Что за что дают</div>
+      <h2>Таблица выплат</h2>
+      <p class="small">Состав фонда — рабочая заготовка по вашему документу. Финальные позиции
+        подставляются в одном файле, вероятности пересчитываются автоматически.</p>
+    </div>
+
+    <div class="tbl-scroll">
+      <table>
+        <thead>
+          <tr><th>Комбинация</th><th>Приз</th><th>Кто предоставляет</th><th style="text-align:right">База</th><th style="text-align:right">Рука волка</th></tr>
+        </thead>
+        <tbody id="payout-table"></tbody>
+      </table>
+    </div>
+
+    <p class="small" style="margin-top:22px"><strong>Сертификат партнёра прилагается к любому исходу.</strong>
+      Кому именно — решает логика кросс-трафика: покупатель партнёра, выигравший чужой приз, получает
+      скидку в «свой» магазин; во всех остальных случаях сертификат ведёт к точке, чью карту гость
+      ещё не собрал.</p>
+  </section>
+</div>
+
+<div class="wrap"><div class="rule"></div></div>
+
+<!-- ══ ПАРТНЁРУ ═══════════════════════════════════════════════════════ -->
+<div class="wrap">
+  <section>
+    <div class="head">
+      <div class="eyebrow">Разговор с партнёром</div>
+      <h2>Чем доказать, что вложение окупилось</h2>
+      <p class="small">Партнёр кладёт в фонд Apple Watch и хочет понимать, что получил взамен.
+        Обещания тут не работают — работает цифра, которую он может проверить сам.</p>
+    </div>
+
+    <div class="figures">
+      <div class="fig"><div class="v">Сканы</div><div class="l">Сколько человек навели камеру на его код — верх воронки</div></div>
+      <div class="fig"><div class="v">Визиты</div><div class="l">Сколько из них реально дошли до клуба</div></div>
+      <div class="fig"><div class="v">Погашено</div><div class="l">Сертификаты, ставшие покупками на его кассе</div></div>
+      <div class="fig"><div class="v">Контакты</div><div class="l">Только те, кто дал отдельное согласие на передачу</div></div>
+    </div>
+
+    <div class="cols two" style="margin-top:30px">
+      <div class="panel">
+        <h3>Свой кабинет</h3>
+        <p class="small">Партнёр входит по своему паролю и видит только своё: воронку по дням,
+          статистику сертификатов, выгрузку контактов в Excel и готовый тейбл-тент со своим QR
+          для печати. Чужие обороты ему не показываются.</p>
+      </div>
+      <div class="panel">
+        <h3>Погашение — им самим</h3>
+        <p class="small">Сертификат гость предъявляет прямо в магазине, партнёр гасит его в своём
+          кабинете сканером или вводом кода. Код одноразовый. Так у партнёра появляется собственный
+          учёт, а не пересказ со стороны клуба.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ══ ЭКОНОМИКА ══════════════════════════════════════════════════════ -->
+<div class="wrap">
+  <section>
+    <div class="head">
+      <div class="eyebrow">Деньги</div>
+      <h2>Во что обходится месяц</h2>
+      <p class="small">Расчёт на 2 500 раздач в месяц. Веса выведены из тиража фонда, а не наоборот:
+        0,04% на флеш-рояль — это ровно один Apple Watch за месяц при плановом трафике.</p>
+    </div>
+
+    <div class="figures">
+      <div class="fig"><div class="v">45 ₽</div><div class="l">прямые затраты клуба на одну раздачу</div></div>
+      <div class="fig"><div class="v">113 000 ₽</div><div class="l">расход клуба за месяц</div></div>
+      <div class="fig"><div class="v">200 000 ₽</div><div class="l">розница фонда партнёров — весь тираж</div></div>
+      <div class="fig"><div class="v">~25 дней</div><div class="l">за столько вырабатывается фонд</div></div>
+    </div>
+
+    <div class="cols two" style="margin-top:30px">
+      <div class="panel">
+        <h3>Почему так дёшево</h3>
+        <p class="small">Фишки и стеки — игровая валюта клуба: ценность для гостя есть, расхода нет.
+          Основные живые деньги уходят на комплименты бара, которые сами по себе поднимают чек.
+          Дорогие позиции полностью на стороне партнёров.</p>
+      </div>
+      <div class="panel">
+        <h3>Три защиты фонда</h3>
+        <ul class="checks">
+          <li><span class="m">♠</span><span><b>Тираж.</b> Приз закончился — его комбинация исчезает из розыгрыша.</span></li>
+          <li><span class="m">♥</span><span><b>Дневной потолок.</b> Дорогие исходы отключаются при превышении бюджета.</span></li>
+          <li><span class="m">♦</span><span><b>Окно тишины.</b> Джекпот не может выпасть чаще раза в 30 дней.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="wrap"><div class="rule"></div></div>
+
+<!-- ══ ЮРИДИКА ════════════════════════════════════════════════════════ -->
+<div class="wrap">
+  <section>
+    <div class="head">
+      <div class="eyebrow">То, о чём лучше договориться заранее</div>
+      <h2>Юридический каркас</h2>
+      <p class="small">Заложен в продукт, а не дописан сверху. Правила и три согласия готовы как черновики
+        для вашего юриста — поля для заполнения выделены прямо в тексте.</p>
+    </div>
+
+    <div class="cols two">
+      <div class="panel">
+        <h3>Уже учтено</h3>
+        <ul class="checks">
+          <li><span class="m">✓</span><span><b>Стимулирующее мероприятие</b>, не лотерея и не азартная игра. Право на раздачу — за покупку, никогда за результат игры за столом.</span></li>
+          <li><span class="m">✓</span><span><b>18+</b> с подтверждением при регистрации.</span></li>
+          <li><span class="m">✓</span><span><b>Отдельное согласие</b> на передачу контакта партнёрам. Без него гость играет наравне со всеми, но в партнёрскую выгрузку не попадает.</span></li>
+          <li><span class="m">✓</span><span><b>Отзыв и удаление данных</b> — кнопками в витрине, а не перепиской с разработчиком.</span></li>
+          <li><span class="m">✓</span><span><b>Сторис — не условие приза.</b> Только основание для дополнительной попытки.</span></li>
+        </ul>
+      </div>
+      <div class="panel lit">
+        <h3 style="color:var(--alert)">Решить до запуска</h3>
+        <ul class="checks">
+          <li><span class="m warn">!</span><span><b>Apple Watch — это НДФЛ 35%</b> с суммы свыше 4 000 ₽, около 12 600 ₽ при цене 40 000 ₽. Нужно решить, кто налоговый агент: партнёр, который вручает приз, или клуб, принявший его по акту.</span></li>
+          <li><span class="m warn">!</span><span><b>Каждый партнёр — оператор ПДн.</b> Как только контакт уходит в его базу, он обязан подать своё уведомление в Роскомнадзор.</span></li>
+          <li><span class="m warn">!</span><span><b>Соглашение о совместной обработке</b> между клубом и каждым партнёром.</span></li>
+          <li><span class="m warn">!</span><span><b>Формулировка «все получают контакт автоматически»</b> из брифа в материалы попасть не должна — только через явное согласие.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ══ СТАТУС ═════════════════════════════════════════════════════════ -->
+<div class="wrap">
+  <section>
+    <div class="head">
+      <div class="eyebrow">Где мы сейчас</div>
+      <h2>Что уже работает</h2>
+    </div>
+
+    <div class="cols two">
+      <div class="panel">
+        <ul class="checks">
+          <li><span class="m">✓</span><span>Оба контура участия, от скана QR до погашения сертификата</span></li>
+          <li><span class="m">✓</span><span>Движок раздачи, проверенный на 60 000 симуляций</span></li>
+          <li><span class="m">✓</span><span>Рабочее место стойки: приглашения, чеки, выдача призов, сканер QR</span></li>
+          <li><span class="m">✓</span><span>Витрина маркетолога: воронка, партнёры, участники, фонд, журнал</span></li>
+          <li><span class="m">✓</span><span>Кабинет партнёра и печатные тейбл-тенты с QR</span></li>
+          <li><span class="m">✓</span><span>Правила и три согласия — черновики для юриста</span></li>
+          <li><span class="m">✓</span><span>Сквозной тест: 70 проверок, все зелёные</span></li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3>Что нужно от вас</h3>
+        <ul class="checks">
+          <li><span class="m">1</span><span>Финальный состав призового фонда с количеством штук по каждой позиции</span></li>
+          <li><span class="m">2</span><span>Реквизиты клуба и всех партнёров для правил</span></li>
+          <li><span class="m">3</span><span>Решение по налоговому агенту для дорогих призов</span></li>
+          <li><span class="m">4</span><span>Логотип в SVG или PNG — в Drive лежат только .ai и .pdf</span></li>
+          <li><span class="m">5</span><span>Домен для акции</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <blockquote style="margin-top:34px">Акции такого типа ломаются не на технике. Продукт работает,
+      а персонал через пару дней перестаёт выдавать коды — и поток иссякает. Здесь точек выдачи
+      не одна, а пять, и в четырёх работают чужие сотрудники.</blockquote>
+    <p class="small" style="margin-top:18px">Поэтому у каждого партнёра должен быть ответственный
+      за выдачу, а сводку по сканам нужно смотреть ежедневно первую неделю. Ноль сканов у точки два дня
+      подряд означает, что материалы не выложили — это решается звонком, а не доработкой.</p>
+  </section>
+</div>
+
+<div class="wrap">
+  <footer>
+    <div class="foot-grid">
+      <div>
+        <p class="fnote">Маркетинговая акция, не лотерея и не азартная игра. Участникам 18+.
+          Игра на деньги запрещена. Количество призов ограничено. Состав фонда и вероятности
+          в этой презентации — рабочая заготовка, подлежащая согласованию с партнёрами и юристом.</p>
+        <p style="margin-top:14px">Optimist Poker · СРПЕ · Екатеринбург</p>
+      </div>
+      <div class="foot-contact">
+        <div class="eyebrow">Разработка</div>
+        <div class="name">ИП Ахмадеев<br>Ярослав Анатольевич</div>
+        <a class="tel" href="tel:+79676380564">+7 967 638-05-64</a>
+        <p class="role">Механика, платформа и материалы акции.<br>По вопросам запуска и доработок.</p>
+      </div>
+    </div>
+  </footer>
+</div>
+
+</main>
+
+<script>
+'use strict';
+
+/* ══════════════════════════════════════════════════════════════════════
+   Демонстрационный движок. Повторяет серверный порядок действий:
+   сначала по весам разыгрывается ИСХОД, и только потом под него
+   собираются пять карт. На проде это делает crypto.randomInt на сервере.
+   ══════════════════════════════════════════════════════════════════ */
+
+const RANKS = ['2','3','4','5','6','7','8','9','T','J','Q','K','A'];
+const SUITS = ['s','h','d','c'];
+const SUIT_CH = { s:'♠', h:'♥', d:'♦', c:'♣' };
+const rv = (r) => RANKS.indexOf(r) + 2;
+
+const COMBOS = {
+  ROYAL_FLUSH:'royal_flush', STRAIGHT_FLUSH:'straight_flush', FOUR:'four_of_a_kind',
+  FULL_HOUSE:'full_house', FLUSH:'flush', STRAIGHT:'straight', THREE:'three_of_a_kind',
+  TWO_PAIR:'two_pair', PAIR_HIGH:'pair_high', BAD_BEAT:'bad_beat',
+  PAIR_LOW:'pair_low', HIGH_CARD:'high_card',
+};
+
+const NAMES = {
+  royal_flush:'Флеш-рояль', straight_flush:'Стрит-флеш', four_of_a_kind:'Каре',
+  full_house:'Фулл-хаус', flush:'Флеш', straight:'Стрит', three_of_a_kind:'Сет',
+  two_pair:'Две пары', pair_high:'Пара валетов и выше', bad_beat:'Бэд-бит 7-2',
+  pair_low:'Пара', high_card:'Старшая карта',
+};
+
+/* Призы: retail — розничная стоимость, cogs — во сколько обходится клубу.
+   Фишки и стеки стоят клубу ноль: это игровая валюта. */
+const PRIZES = {
+  apple_watch:      { name:'Apple Watch',                     icon:'⌚', who:'HELLO APPLE',    retail:40000, cogs:0 },
+  levvel_suit:      { name:'Сертификат LEVVEL men 15 000 ₽',  icon:'🤵', who:'LEVVEL men',     retail:15000, cogs:0 },
+  partner_big:      { name:'Крупный приз партнёра',           icon:'🎁', who:'партнёры',       retail:10000, cogs:0 },
+  partner_mid:      { name:'Приз партнёра до 4 000 ₽',        icon:'🎀', who:'партнёры',       retail:4000,  cogs:0 },
+  tournament_ticket:{ name:'Билет на Main Event',             icon:'🎫', who:'клуб',           retail:3000,  cogs:300 },
+  club_cap:         { name:'Фирменная кепка СРПЕ',            icon:'🧢', who:'клуб',           retail:2500,  cogs:700 },
+  chips_big:        { name:'Двойной стек фишек',              icon:'🪙', who:'клуб',           retail:1500,  cogs:0 },
+  bar_set:          { name:'Комплимент от бара',              icon:'🥃', who:'клуб',           retail:1200,  cogs:320 },
+  chips_small:      { name:'Дополнительные фишки',            icon:'♠️', who:'клуб',           retail:700,   cogs:0 },
+};
+
+const PAYOUT = [
+  [COMBOS.ROYAL_FLUSH,    'apple_watch'],
+  [COMBOS.STRAIGHT_FLUSH, 'levvel_suit'],
+  [COMBOS.FOUR,           'partner_big'],
+  [COMBOS.FULL_HOUSE,     'partner_mid'],
+  [COMBOS.FLUSH,          'tournament_ticket'],
+  [COMBOS.STRAIGHT,       'club_cap'],
+  [COMBOS.THREE,          'chips_big'],
+  [COMBOS.TWO_PAIR,       'bar_set'],
+  [COMBOS.PAIR_HIGH,      'chips_small'],
+  [COMBOS.BAD_BEAT,       'chips_small'],
+  [COMBOS.PAIR_LOW,       null],
+  [COMBOS.HIGH_CARD,      null],
+];
+const prizeFor = (c) => (PAYOUT.find((r) => r[0] === c) || [])[1] || null;
+
+const TIERS = {
+  base:    { royal_flush:0.04, straight_flush:0.08, four_of_a_kind:0.20, full_house:0.80,
+             flush:1.80, straight:1.20, three_of_a_kind:8.00, two_pair:8.00,
+             pair_high:16.00, bad_beat:3.00, pair_low:20.00, high_card:40.88 },
+  boosted: { royal_flush:0.06, straight_flush:0.12, four_of_a_kind:0.30, full_house:1.20,
+             flush:3.00, straight:2.00, three_of_a_kind:12.00, two_pair:11.00,
+             pair_high:19.00, bad_beat:3.50, pair_low:20.00, high_card:27.82 },
+  wolf:    { royal_flush:0.15, straight_flush:0.35, four_of_a_kind:0.80, full_house:2.50,
+             flush:6.00, straight:4.00, three_of_a_kind:18.00, two_pair:16.00,
+             pair_high:22.00, bad_beat:4.00, pair_low:16.00, high_card:10.20 },
+};
+
+const CERTS = ['Скидка в HELLO APPLE','Скидка в LEVVEL men','Скидка в «Чапаевских»','Скидка в «Конторе»'];
+
+/* ── Случайность ──────────────────────────────────────────────────── */
+const ri = (n) => Math.floor(Math.random() * n);
+const pick = (a) => a[ri(a.length)];
+function shuffle(a){ const x=[...a]; for(let i=x.length-1;i>0;i--){const j=ri(i+1);[x[i],x[j]]=[x[j],x[i]];} return x; }
+
+function pickCombo(tier){
+  const w = TIERS[tier];
+  const total = Object.values(w).reduce((s,v)=>s+v,0);
+  let p = Math.random() * total;
+  for (const [k,v] of Object.entries(w)){ p -= v; if (p < 0) return k; }
+  return COMBOS.HIGH_CARD;
+}
+
+/* ── Оценка руки ──────────────────────────────────────────────────── */
+function evaluate(cards){
+  const flush = cards.every((c) => c.s === cards[0].s);
+  const vals = [...new Set(cards.map((c) => rv(c.r)))].sort((a,b)=>a-b);
+  let sHigh = null;
+  if (vals.length === 5){
+    if (vals[4] - vals[0] === 4) sHigh = vals[4];
+    else if (vals.join(',') === '2,3,4,5,14') sHigh = 5;
+  }
+  const counts = new Map();
+  cards.forEach((c) => counts.set(c.r, (counts.get(c.r)||0) + 1));
+  const byCount = [...counts.entries()].sort((a,b) => (b[1]-a[1]) || (rv(b[0])-rv(a[0])));
+  const shape = byCount.map(([,n]) => n).join('');
+
+  const sevens = cards.filter((c) => c.r === '7');
+  const deuces = cards.filter((c) => c.r === '2');
+  const sevenDeuce = sevens.some((a) => deuces.some((b) => a.s !== b.s));
+
+  if (flush && sHigh === 14) return COMBOS.ROYAL_FLUSH;
+  if (flush && sHigh) return COMBOS.STRAIGHT_FLUSH;
+  if (shape === '41') return COMBOS.FOUR;
+  if (shape === '32') return COMBOS.FULL_HOUSE;
+  if (flush) return COMBOS.FLUSH;
+  if (sHigh) return COMBOS.STRAIGHT;
+  if (shape === '311') return COMBOS.THREE;
+  if (shape === '221') return COMBOS.TWO_PAIR;
+  if (shape === '2111') return rv(byCount[0][0]) >= 11 ? COMBOS.PAIR_HIGH : COMBOS.PAIR_LOW;
+  return sevenDeuce ? COMBOS.BAD_BEAT : COMBOS.HIGH_CARD;
+}
+
+/* ── Сборка руки под заданный исход ───────────────────────────────── */
+function straightRanks(high){
+  if (high === 5) return ['A','2','3','4','5'];
+  const out = [];
+  for (let v = high - 4; v <= high; v++) out.push(RANKS[v-2]);
+  return out;
+}
+function distinct(n, exclude = []){
+  return shuffle(RANKS.filter((r) => !exclude.includes(r))).slice(0, n);
+}
+
+function draft(combo){
+  const HIGHS = [5,6,7,8,9,10,11,12,13,14];
+  switch (combo){
+    case COMBOS.ROYAL_FLUSH: { const s = pick(SUITS); return ['T','J','Q','K','A'].map((r)=>({r,s})); }
+    case COMBOS.STRAIGHT_FLUSH: {
+      const s = pick(SUITS); return straightRanks(pick(HIGHS.filter((h)=>h!==14))).map((r)=>({r,s}));
+    }
+    case COMBOS.FOUR: {
+      const [q,k] = distinct(2);
+      return [...SUITS.map((s)=>({r:q,s})), { r:k, s:pick(SUITS) }];
+    }
+    case COMBOS.FULL_HOUSE: {
+      const [t,p] = distinct(2);
+      return [...shuffle(SUITS).slice(0,3).map((s)=>({r:t,s})), ...shuffle(SUITS).slice(0,2).map((s)=>({r:p,s}))];
+    }
+    case COMBOS.FLUSH: { const s = pick(SUITS); return distinct(5).map((r)=>({r,s})); }
+    case COMBOS.STRAIGHT: {
+      const ranks = straightRanks(pick(HIGHS));
+      const su = shuffle(SUITS);
+      return ranks.map((r,i)=>({ r, s: su[i % 3] }));   // максимум три масти — флеша не выйдет
+    }
+    case COMBOS.THREE: {
+      const [t,k1,k2] = distinct(3);
+      return [...shuffle(SUITS).slice(0,3).map((s)=>({r:t,s})), {r:k1,s:pick(SUITS)}, {r:k2,s:pick(SUITS)}];
+    }
+    case COMBOS.TWO_PAIR: {
+      const [p1,p2,k] = distinct(3);
+      return [...shuffle(SUITS).slice(0,2).map((s)=>({r:p1,s})),
+              ...shuffle(SUITS).slice(0,2).map((s)=>({r:p2,s})), {r:k,s:pick(SUITS)}];
+    }
+    case COMBOS.PAIR_HIGH:
+    case COMBOS.PAIR_LOW: {
+      const highs = ['J','Q','K','A'];
+      const pool = combo === COMBOS.PAIR_HIGH ? highs : RANKS.filter((r)=>!highs.includes(r));
+      const pr = pick(pool);
+      return [...shuffle(SUITS).slice(0,2).map((s)=>({r:pr,s})),
+              ...distinct(3,[pr]).map((r)=>({r,s:pick(SUITS)}))];
+    }
+    case COMBOS.BAD_BEAT: {
+      const su = shuffle(SUITS);
+      return [{r:'7',s:su[0]}, {r:'2',s:su[1]}, ...distinct(3,['7','2']).map((r)=>({r,s:pick(SUITS)}))];
+    }
+    default: return distinct(5).map((r)=>({r,s:pick(SUITS)}));
+  }
+}
+
+function buildHand(combo){
+  for (let i = 0; i < 400; i++){
+    const cards = draft(combo);
+    if (new Set(cards.map((c)=>c.r + c.s)).size !== 5) continue;
+    if (evaluate(cards) === combo) return cards;
+  }
+  return draft(COMBOS.HIGH_CARD);
+}
+
+function winningIdx(cards, combo){
+  const all = [0,1,2,3,4];
+  if (['royal_flush','straight_flush','flush','straight','full_house'].includes(combo)) return all;
+  if (combo === 'bad_beat'){
+    return [cards.findIndex((c)=>c.r==='7'), cards.findIndex((c)=>c.r==='2')].filter((i)=>i>=0);
+  }
+  const counts = new Map();
+  cards.forEach((c)=>counts.set(c.r,(counts.get(c.r)||0)+1));
+  const paired = [...counts.entries()].filter(([,n])=>n>1).map(([r])=>r);
+  return paired.length ? all.filter((i)=>paired.includes(cards[i].r)) : [];
+}
+
+/* ══ Интерфейс ═══════════════════════════════════════════════════════ */
+const $ = (id) => document.getElementById(id);
+const fmt = (n) => Math.round(n).toLocaleString('ru-RU');
+let tier = 'base';
+let busy = false;
+const tally = { deals:0, wins:0, jack:0, cogs:0, retail:0, combos:{} };
+
+function cardEl(card, faceUp){
+  const slot = document.createElement('div');
+  slot.className = 'slot';
+  const red = card && (card.s === 'h' || card.s === 'd');
+  const rank = card ? (card.r === 'T' ? '10' : card.r) : '';
+  const suit = card ? SUIT_CH[card.s] : '';
+  slot.innerHTML =
+    '<div class="pc ' + (red ? 'red ' : '') + (faceUp ? 'up' : '') + '">' +
+      '<div class="face"><div class="r">' + rank + '</div>' +
+      '<div class="pip">' + suit + '</div>' +
+      '<div class="s">' + suit + '</div></div>' +
+      '<div class="back"></div>' +
+    '</div>';
+  return slot;
+}
+
+function layoutBacks(){
+  const hand = $('hand');
+  hand.innerHTML = '';
+  for (let i = 0; i < 5; i++) hand.appendChild(cardEl(null, false));
+}
+
+function renderTally(){
+  $('t-deals').textContent = fmt(tally.deals);
+  $('t-wins').textContent = fmt(tally.wins);
+  $('t-rate').textContent = tally.deals ? (tally.wins / tally.deals * 100).toFixed(1) + '%' : '—';
+  $('t-jack').textContent = fmt(tally.jack);
+  $('t-cogs').textContent = fmt(tally.cogs) + ' ₽';
+  $('t-retail').textContent = fmt(tally.retail) + ' ₽';
+
+  const w = TIERS[tier];
+  $('dist').innerHTML = PAYOUT.map(([combo]) => {
+    const c = tally.combos[combo] || 0;
+    const share = tally.deals ? (c / tally.deals * 100) : 0;
+    const expected = w[combo];
+    const width = Math.min(100, share / Math.max(1, Math.max(...Object.values(w))) * 100);
+    return '<div class="dist-row' + (c ? ' hit' : '') + '">' +
+             '<span class="nm">' + NAMES[combo] + '</span>' +
+             '<span class="c">' + c + '</span>' +
+             '<span class="p">' + expected.toFixed(2) + '%</span>' +
+             '<span class="bar"><i style="width:' + width + '%"></i></span>' +
+           '</div>';
+  }).join('');
+}
+
+function account(combo){
+  tally.deals++;
+  tally.combos[combo] = (tally.combos[combo] || 0) + 1;
+  if (combo === COMBOS.ROYAL_FLUSH) tally.jack++;
+  const id = prizeFor(combo);
+  if (id){
+    tally.wins++;
+    tally.cogs += PRIZES[id].cogs;
+    tally.retail += PRIZES[id].retail;
+  }
+  tally.cogs += 0;         // сертификат партнёра клубу ничего не стоит
+}
+
+function showVerdict(combo){
+  const id = prizeFor(combo);
+  const cert = pick(CERTS);
+  const prizeHtml = id
+    ? '<div class="payout"><span class="ic">' + PRIZES[id].icon + '</span>' +
+      '<span class="nm">' + PRIZES[id].name + '</span></div>'
+    : '';
+  $('verdict').innerHTML =
+    '<div class="combo">' + NAMES[combo] + '</div>' +
+    prizeHtml +
+    '<div class="cert">И сертификат в довесок: <b>' + cert + '</b></div>';
+}
+
+async function deal(){
+  if (busy) return;
+  busy = true;
+  $('deal').disabled = true;
+  $('burst').disabled = true;
+
+  const combo = pickCombo(tier);
+  const cards = buildHand(combo);
+  const highlight = winningIdx(cards, combo);
+
+  const hand = $('hand');
+  hand.innerHTML = '';
+  const slots = cards.map((c) => { const el = cardEl(c, false); hand.appendChild(el); return el; });
+  $('verdict').innerHTML = '<div class="idle">Сдаём…</div>';
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const step = reduced ? 0 : 300;
+
+  await new Promise((done) => {
+    slots.forEach((slot, i) => {
+      setTimeout(() => {
+        slot.querySelector('.pc').classList.add('up');
+        if (i === slots.length - 1) setTimeout(done, reduced ? 0 : 520);
+      }, reduced ? 0 : 160 + i * step);
+    });
+  });
+
+  highlight.forEach((i) => slots[i] && slots[i].classList.add('win'));
+  showVerdict(combo);
+  account(combo);
+  renderTally();
+
+  busy = false;
+  $('deal').disabled = false;
+  $('burst').disabled = false;
+}
+
+function burst(){
+  if (busy) return;
+  for (let i = 0; i < 200; i++) account(pickCombo(tier));
+  renderTally();
+  $('verdict').innerHTML =
+    '<div class="combo">200 раздач сыграно</div>' +
+    '<div class="cert">Смотрите столбец справа: факт против заложенной вероятности</div>';
+}
+
+/* ── Таблица выплат ───────────────────────────────────────────────── */
+$('payout-table').innerHTML = PAYOUT.map(([combo, id]) => {
+  const p = id ? PRIZES[id] : null;
+  const premium = ['royal_flush','straight_flush','four_of_a_kind'].includes(combo);
+  return '<tr' + (premium ? ' class="premium"' : '') + '>' +
+    '<td class="rank">' + NAMES[combo] + '</td>' +
+    '<td>' + (p ? p.icon + ' ' + p.name : '<span style="color:var(--dim)">только сертификат партнёра</span>') + '</td>' +
+    '<td class="who">' + (p ? p.who : 'партнёры') + '</td>' +
+    '<td class="odds">' + TIERS.base[combo].toFixed(2) + '%</td>' +
+    '<td class="odds">' + TIERS.wolf[combo].toFixed(2) + '%</td>' +
+  '</tr>';
+}).join('');
+
+/* ── События ──────────────────────────────────────────────────────── */
+document.querySelectorAll('.tier-switch button').forEach((b) => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.tier-switch button').forEach((x) => x.setAttribute('aria-pressed','false'));
+    b.setAttribute('aria-pressed','true');
+    tier = b.dataset.tier;
+    renderTally();
+  });
+});
+
+$('deal').addEventListener('click', deal);
+$('burst').addEventListener('click', burst);
+$('reset').addEventListener('click', () => {
+  tally.deals = 0; tally.wins = 0; tally.jack = 0; tally.cogs = 0; tally.retail = 0; tally.combos = {};
+  layoutBacks();
+  $('verdict').innerHTML = '<div class="idle">Нажмите «Сдавай» — карты вскроются по одной.</div>';
+  renderTally();
+});
+
+layoutBacks();
+renderTally();
+</script>
+
+</body>
+</html>
